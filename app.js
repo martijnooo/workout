@@ -121,6 +121,20 @@
     ]},
   ];
 
+  /* ---------- Exercise info: tutorial video + alternatives (from Drive plans) ----------
+     Shape: { "<exercise>": { v: tutorialUrl, a: [ [altName, altUrl], ... ] } }        */
+  const EXERCISE_INFO = {"Barbell Bench Press":{"v":"https://youtu.be/pCGVSBk0bIQ","a":[["Flat Dumbbell Press","https://youtu.be/g14dhC5KYBM"],["Flat Machine Chest Press","https://youtu.be/sO8lFa9CidE"],["Flat Smith Machine Chest Press","https://youtu.be/3Z3C44SXSQE"],["Seated Flat Cable Press","https://youtu.be/hPpNTAEDnxM"],["Neutral Grip Dumbbell Press (*shoulder friendly)","https://youtu.be/N-kUwH1uf9c"]]},"Dumbbell Romanian Deadlift":{"v":"https://youtu.be/Xu4DxwKWzl4","a":[["Barbell Romanian Deadlift","https://youtu.be/Q-2telZDPRw"],["Hyperextensions (back/ hamstring focused)","https://youtu.be/RU5d2H_OmSc"]]},"(Weighted) Pull-Ups":{"a":[["(Weighted) Chin-Ups","https://youtu.be/-TZRdvUS7Qo"],["Banded Pull-Ups","https://youtu.be/VGm-f5-T5no"],["Inverted Row","https://youtu.be/SyMSay4zrsA"],["Kneeling Lat Pulldowns","https://youtu.be/4LxKeTqlpZA"],["Lat Pulldowns","https://youtu.be/AvYZZhEl7Xk"]]},"Bulgarian Split Squat (Quad Focus)":{"v":"https://youtu.be/r9XtxWSTlcg","a":[["Heel Elevated Split Squat","https://youtu.be/bJE0-eZLa6E"],["Walking Lunges (quad focused)","https://youtu.be/JB20RuTOaFc"],["Reverse Lunges (*knee friendly)","https://youtu.be/AUEGDvCrQJA"],["Weighted Step Ups (*knee friendly)","https://youtu.be/Cjc3AgmdtlA"]]},"Seated Mid-Chest Cable Fly":{"a":[["Standing Mid-Chest Cable Fly","https://youtu.be/fyFVaCP9J-8"],["Pec-Deck Machine Fly","https://youtu.be/rnV3y1P7894"],["Dumbbell Fly","https://youtu.be/WRn2hqy0gXU"],["Banded Push-Ups","https://youtu.be/dI7LVElfMOg"],["Standing Mid-Chest Cable Fly","https://youtu.be/Y8E3dHNsSTU"]]},"Dumbbell Lateral Raise":{"a":[["Cable Lateral Raise","https://youtu.be/1muit9qEctY"],["Lying Incline Lateral Raise","https://youtu.be/upEqeI0F73M"],["Lean In Lateral Raise","https://youtu.be/2q4kjTDg-vs"],["Wide Grip Barbell Upright Row (last resort)","https://youtu.be/6BTMVh9AnCw"]]},"Standing Weighted Calf Raise":{"a":[["Toes-Elevated Smith Machine Calf Raises","https://youtu.be/_ChZv2iluM8"],["Single Leg Weighted Calf Raise","https://youtu.be/cRKA_Qdut7I"],["Leg Press Calf Raises","https://youtu.be/s8yUXsZrgE0"]]},"Standing Face Pulls":{"a":[["Bent Over Dumbbell Face Pulls","https://youtu.be/kA415Unr-_E"],["(Weighted) Prone Arm Circles","https://youtu.be/6D-4V_M8RJA"],["Wall Slides","https://youtu.be/x4zjfuLXHVk"]]},"Barbell Back Squat":{"a":[["Quad-Focused Leg Press","https://youtu.be/0nrW-q7-WRQ"],["Smith Machine Squat","https://youtu.be/zSVi51Jp3eI"],["Barbell Back Box Squat (*knee friendly)","https://youtu.be/QryQO4VuPK8"],["Weighted Step-Ups (*knee friendly)","https://youtu.be/Cjc3AgmdtlA"],["Goblet Squat (*lower back friendly)","https://youtu.be/nYDEYFXN2Rs"],["Bulgarian Split Squat (quad-focused)","https://youtu.be/r9XtxWSTlcg"]]},"Standing Barbell Overhead Press":{"a":[["Standing Dumbbell Shoulder Press","https://youtu.be/jWriqmLrQqs"],["Seated Dumbbell Shoulder Press","https://youtu.be/DPXG3BJvl8A"],["Seated Neutral-Grip Dumbbell Shoulder Press (*shoulder friendly)","https://youtu.be/W35eREjZnhI"]]},"Seated Leg Curls":{"v":"https://youtu.be/81umRgyxIAU","a":[["Lying Leg Curls","https://youtu.be/aYy3alWRDmk"],["Swiss Ball Leg Curls","https://youtu.be/uRBpd65dbYs"],["Dumbbell Lying Leg Curls","https://youtu.be/Ot1MZipNLOQ"]]},"Seated Cable Row (Mid/Upper Back)":{"v":"https://youtu.be/Q-5V5T55giY","a":[["Dumbbell Chest Supported Row (mid/upper back focused)","https://youtu.be/kNvy2_9Ji2w"],["Barbell Row (mid/upper back focused)","https://youtu.be/FTCmwlfZ29A"],["Chest Supported Machine Row","https://youtu.be/iDiVxqvHGWY"]]},"Banded Push-Ups":{"v":"https://youtu.be/dI7LVElfMOg","a":[["Close-Grip Barbell Bench Press","https://youtu.be/JzCGNgXuATs"],["Close-Grip Push-Ups","https://youtu.be/ZtAz8gupAss"],["Close-Grip Dumbbell Press","https://youtu.be/wHx9-aLjDOM"],["Close-Grip Smith Machine Press","https://youtu.be/GIuRW-MDHK8"],["Cable Pushdowns","https://youtu.be/MlfCS_7ZLXA"]]},"Incline Dumbbell Overhead Extensions":{"a":[["Overhead Rope Extensions","https://youtu.be/7yoTblFCUQM"],["Cable Pushdowns (*elbow friendly)","https://youtu.be/MlfCS_7ZLXA"],["Incline Barbell Skullcrushers","https://youtu.be/XgwPiPY4vCI"],["Cross Cable Tricep Extensions","https://youtu.be/Fua2QlXnn6Y"]]},"RKC Plank":{"v":"https://youtu.be/lOgA1UfFbWY","a":[["Side Plank","https://youtu.be/o4LGPtKjbhU"],["Bird Dog","https://youtu.be/4qE_9h_6Hes"],["Palloff Press","https://youtu.be/WhCH2CwVo4I"],["Dead Bug","https://youtu.be/UJ7b8gYa2Es"]]},"Barbell Deadlift":{"a":[["Sumo Deadlift (*lower back friendly)","https://youtu.be/9rXKd-_DaRs"],["Trap Bar Deadlift (*lower back friendly)","https://youtu.be/5mnlJtf-7WM"],["Dumbbell Romanian Deadlift","https://youtu.be/Xu4DxwKWzl4"],["Hyperextensions (back/ hamstring focused)","https://youtu.be/RU5d2H_OmSc"],["Glute Focused Leg Press","https://youtu.be/p13BNdwR93A"]]},"Low Incline Dumbbell Press":{"a":[["Incline Machine Chest Press","https://youtu.be/abc1fisYB3w"],["Low Incline Smith Machine Press","https://youtu.be/R53nThQcdZo"],["Low Incline Barbell Press","https://youtu.be/jW4j7FoqudI"],["Low Incline Cable Press","https://youtu.be/6qV1WZ_z0u0"],["(Banded) Decline Push-Ups","https://youtu.be/LdahU9kB-u0"]]},"Dumbbell Chest Supported Row (Mid/Upper Back)":{"v":"https://youtu.be/kNvy2_9Ji2w","a":[["Barbell Row (mid/upper back focused)","https://youtu.be/FTCmwlfZ29A"],["Seated Cable Row (mid/ upper back focused)","https://youtu.be/Q-5V5T55giY"],["Chest Supported Machine Row","https://youtu.be/iDiVxqvHGWY"]]},"Seated Leg Extensions":{"a":[["Sissy Squat","https://youtu.be/3SeCC8ABZ_Q"],["Heel Elevated Goblet Squat","https://youtu.be/l9crMLuT4II"],["Reverse Lunges (*knee friendly)","https://youtu.be/AUEGDvCrQJA"]]},"Cable Lateral Raise":{"v":"https://youtu.be/1muit9qEctY","a":[["Dumbbell Lateral Raises","https://youtu.be/zcO3sgAeLA0"],["Lying Incline Lateral Raises","https://youtu.be/upEqeI0F73M"],["Lean In Lateral Raise","https://youtu.be/2q4kjTDg-vs"],["Wide Grip Barbell Upright Row (last resort)","https://youtu.be/6BTMVh9AnCw"]]},"Standing Cable Curl":{"a":[["Seated Dumbbell Curls","https://youtu.be/qUAzPq4B2aw"],["Dumbbell Spider Curls","https://youtu.be/hDDcQkCxHjE"]]},"Bird Dog":{"v":"https://youtu.be/4qE_9h_6Hes","a":[["RKC Plank","https://youtu.be/lOgA1UfFbWY"],["Side Plank","https://youtu.be/o4LGPtKjbhU"],["Palloff Press","https://youtu.be/WhCH2CwVo4I"],["Dead Bug","https://youtu.be/UJ7b8gYa2Es"]]},"INTERMEDIATE / 3-day v1":{"a":[["<","https://youtu.be/pCGVSBk0bIQ"],["<","https://youtu.be/Xu4DxwKWzl4"],["<","https://youtu.be/w_yuTRQd6HA"],["<","https://youtu.be/r9XtxWSTlcg"],["<","https://youtu.be/Y8E3dHNsSTU"],["<","https://youtu.be/zcO3sgAeLA0"],["<","https://youtu.be/q2Eigaa9dKU"],["<","https://youtu.be/02g7XtSRXug"],["<","https://youtu.be/AWo-q7P-HZ0"],["<","https://youtu.be/S3kYKH32VqI"],["<","https://youtu.be/81umRgyxIAU"],["<","https://youtu.be/Q-5V5T55giY"],["<","https://youtu.be/dI7LVElfMOg"],["<","https://youtu.be/3d86xMhHROA"],["<","https://youtu.be/2TkLMol2bCo"],["<","https://youtu.be/lOgA1UfFbWY"],["<","https://youtu.be/JL1tJTEmxfw"],["<","https://youtu.be/kpzUeELReEA"],["<","https://youtu.be/kNvy2_9Ji2w"],["<","https://youtu.be/nIalczfM8es"],["<","https://youtu.be/1muit9qEctY"],["<","https://youtu.be/8Bb-ak2lB8E"],["<","https://youtu.be/4qE_9h_6Hes"]]},"Incline Dumbbell Curls":{"a":[["Behind Body Cable Curls","https://youtu.be/S2CNDlAY8kY"],["Barbell Curl","https://youtu.be/-ClfZ00zo8c"]]},"Lying Incline Lateral Raise":{"v":"https://youtu.be/upEqeI0F73M","a":[["Dumbbell Lateral Raises","https://youtu.be/zcO3sgAeLA0"],["Cable Lateral Raise","https://youtu.be/1muit9qEctY"],["Lean In Lateral Raise","https://youtu.be/2q4kjTDg-vs"],["Wide Grip Barbell Upright Row (last resort)","https://youtu.be/6BTMVh9AnCw"]]},"Walking Lunges (Quad Focus)":{"v":"https://youtu.be/JB20RuTOaFc","a":[["Heel Elevated Split Squat","https://youtu.be/bJE0-eZLa6E"],["Bulgarian Split Squat (quad focused)","https://youtu.be/r9XtxWSTlcg"],["Reverse Lunges (*knee friendly)","https://youtu.be/AUEGDvCrQJA"],["Weighted Step Ups (*knee friendly)","https://youtu.be/Cjc3AgmdtlA"]]},"Side Plank":{"v":"https://youtu.be/o4LGPtKjbhU","a":[["RKC Plank","https://youtu.be/lOgA1UfFbWY"],["Bird Dog","https://youtu.be/4qE_9h_6Hes"],["Palloff Press","https://youtu.be/WhCH2CwVo4I"],["Dead Bug","https://youtu.be/UJ7b8gYa2Es"]]},"Chest Supported Dumbbell Row (Lat Focus)":{"a":[["Lat Focused Cable Row","https://youtu.be/ZaEnZ47cDTk"],["Barbell Row (lat focused)","https://youtu.be/tS5lKXxtNvE"],["Half-Kneeling Cable Row","https://youtu.be/tTev-zsqR4A"]]},"Flat Dumbbell Press":{"v":"https://youtu.be/g14dhC5KYBM","a":[["Barbell Bench Press","https://youtu.be/pCGVSBk0bIQ"],["Flat Machine Chest Press","https://youtu.be/sO8lFa9CidE"],["Flat Smith Machine Chest Press","https://youtu.be/3Z3C44SXSQE"],["Seated Flat Cable Press","https://youtu.be/hPpNTAEDnxM"],["Neutral Grip Dumbbell Press (*shoulder friendly)","https://youtu.be/N-kUwH1uf9c"]]},"Rear Delt Cable Row":{"a":[["Chest Supported Dumbbell Rear Delt Row","https://youtu.be/6LTUVaKpRCk"],["Rear Delt Cable Fly","https://youtu.be/2Xepcd9FYvE"],["Barbell Row (mid/upper back focused)","https://youtu.be/FTCmwlfZ29A"]]},"Bulgarian Split Squat (Glute Focus)":{"v":"https://youtu.be/r9XtxWSTlcg","a":[["Front Foot Elevated Reverse Lunge","https://youtu.be/JySEdVXPUM8"],["Reverse Lunges (*knee friendly)","https://youtu.be/AUEGDvCrQJA"],["Weighted Step Ups (*knee friendly)","https://youtu.be/Cjc3AgmdtlA"],["Single-Leg Leg Press","https://youtu.be/hdioTTf8qdw"]]},"Barbell Hip Thrust":{"a":[["Smith Machine Hip Thrust","https://youtu.be/srYETmyq3_c"],["(Weighted) Single Leg Hip Thrusts","https://youtu.be/FKD9-qezw08"],["Hyperextensions (glute focused)","https://youtu.be/bsXgCaIIwCg"],["Reverse Hyperextensions (bodyweight)","https://youtu.be/yRvF177yb88"]]},"Lying Leg Curls":{"v":"https://youtu.be/aYy3alWRDmk","a":[["Seated Leg Curls","https://youtu.be/81umRgyxIAU"],["Swiss Ball Leg Curls","https://youtu.be/uRBpd65dbYs"],["Dumbbell Lying Leg Curls","https://youtu.be/Ot1MZipNLOQ"]]},"Banded Hip Abductions":{"a":[["Side Lying Hip Raise","https://youtu.be/ZieZ6pjc4fQ"],["Side Lying Leg Raise","https://youtu.be/ht3Ayrre2HA"]]},"INTERMEDIATE / 4-day v1":{"a":[["<","https://youtu.be/pCGVSBk0bIQ"],["<","https://youtu.be/w_yuTRQd6HA"],["<","https://youtu.be/S3kYKH32VqI"],["<","https://youtu.be/Y8E3dHNsSTU"],["<","https://youtu.be/kNvy2_9Ji2w"],["<","https://youtu.be/3D56VDVkQnM"],["<","https://youtu.be/upEqeI0F73M"],["<","https://youtu.be/02g7XtSRXug"],["<","https://youtu.be/AWo-q7P-HZ0"],["<","https://youtu.be/Xu4DxwKWzl4"],["<","https://youtu.be/nIalczfM8es"],["<","https://youtu.be/JB20RuTOaFc"],["<","https://youtu.be/q2Eigaa9dKU"],["<","https://youtu.be/o4LGPtKjbhU"],["<","https://youtu.be/kpzUeELReEA"],["<","https://youtu.be/I2Unz9FR0sc"],["<","https://youtu.be/g14dhC5KYBM"],["<","https://youtu.be/k9G7BykDD4o"],["<","https://youtu.be/1muit9qEctY"],["<","https://youtu.be/OrGL-ymYREg"],["<","https://youtu.be/3d86xMhHROA"],["<","https://youtu.be/JL1tJTEmxfw"],["<","https://youtu.be/sqadB2rroz0"],["<","https://youtu.be/_vBMijiZoxE"],["<","https://youtu.be/aYy3alWRDmk"],["<","https://youtu.be/CA0ALPgTkxw"],["<","https://youtu.be/2TkLMol2bCo"]]}};
+
+  function normName(s) {
+    return String(s || '').toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]/g, '');
+  }
+  // Build a normalized index once for tolerant lookups.
+  const EXINFO_INDEX = {};
+  Object.keys(EXERCISE_INFO).forEach((k) => { EXINFO_INDEX[normName(k)] = EXERCISE_INFO[k]; });
+  function getExerciseInfo(name) {
+    return EXERCISE_INFO[name] || EXINFO_INDEX[normName(name)] || null;
+  }
+
   function findOrCreateExercise(name, muscle) {
     let def = exercises.find((e) => e.name.toLowerCase() === name.toLowerCase());
     if (!def) {
@@ -408,6 +422,14 @@
     titleWrap.appendChild(el('div', 'exercise-title', ex.name));
     if (ex.muscle) titleWrap.appendChild(el('div', 'exercise-muscle', ex.muscle));
     head.appendChild(titleWrap);
+
+    const headBtns = el('div', 'exercise-head-btns');
+    if (getExerciseInfo(ex.name)) {
+      const info = el('button', 'exercise-menu', 'ⓘ');
+      info.title = 'Tutorial & alternatives';
+      info.addEventListener('click', () => openInfo(ex, exIdx));
+      headBtns.appendChild(info);
+    }
     const menu = el('button', 'exercise-menu', '✕');
     menu.title = 'Remove exercise';
     menu.addEventListener('click', () => {
@@ -415,7 +437,8 @@
       persistActive();
       renderExercises();
     });
-    head.appendChild(menu);
+    headBtns.appendChild(menu);
+    head.appendChild(headBtns);
     box.appendChild(head);
 
     const table = el('div', 'sets-table');
@@ -663,11 +686,69 @@
     });
   });
 
+  /* ============================================================
+     Exercise info modal (tutorial video + alternatives)
+     ============================================================ */
+  const infoModal = $('#info-modal');
+  const YT = (url) => url; // links open in a new tab; kept as-is
+
+  function openInfo(ex, exIdx) {
+    const info = getExerciseInfo(ex.name);
+    if (!info) return;
+    $('#info-title').textContent = ex.name;
+
+    // Tutorial video link
+    const vidWrap = $('#info-video');
+    vidWrap.innerHTML = '';
+    if (info.v) {
+      const a = el('a', 'btn btn-primary btn-block', '▶  Watch tutorial');
+      a.href = YT(info.v); a.target = '_blank'; a.rel = 'noopener';
+      vidWrap.appendChild(a);
+    }
+
+    // Alternatives list
+    const list = $('#info-alts');
+    list.innerHTML = '';
+    const alts = info.a || [];
+    $('#info-alts-label').classList.toggle('hidden', alts.length === 0);
+    alts.forEach(([name, url]) => {
+      const row = el('div', 'alt-item');
+      const left = el('div', 'alt-body');
+      left.appendChild(el('div', 'alt-name', name));
+      row.appendChild(left);
+
+      const watch = el('a', 'alt-watch', '▶');
+      watch.title = 'Watch'; watch.href = YT(url); watch.target = '_blank'; watch.rel = 'noopener';
+      row.appendChild(watch);
+
+      // Swap only makes sense inside an active workout
+      if (exIdx != null) {
+        const swap = el('button', 'alt-swap', 'Swap in');
+        swap.addEventListener('click', () => {
+          const def = findOrCreateExercise(name, ex.muscle);
+          save(KEYS.exercises, exercises);
+          const target = active.exercises[exIdx];
+          target.exId = def.id;
+          target.name = def.name;
+          target.muscle = def.muscle;
+          persistActive();
+          renderExercises();
+          infoModal.classList.add('hidden');
+        });
+        row.appendChild(swap);
+      }
+      list.appendChild(row);
+    });
+
+    infoModal.classList.remove('hidden');
+  }
+
   /* ---------- Generic modal close ---------- */
   $$('[data-close]').forEach((n) => {
     n.addEventListener('click', () => {
       pickerModal.classList.add('hidden');
       restSettingsModal.classList.add('hidden');
+      infoModal.classList.add('hidden');
     });
   });
 
@@ -768,6 +849,14 @@
       left.appendChild(el('div', 'lib-name', def.name));
       if (def.muscle) left.appendChild(el('div', 'lib-muscle', def.muscle));
       item.appendChild(left);
+
+      const libBtns = el('div', 'exercise-head-btns');
+      if (getExerciseInfo(def.name)) {
+        const info = el('button', 'lib-del', 'ⓘ');
+        info.title = 'Tutorial & alternatives';
+        info.addEventListener('click', () => openInfo(def, null));
+        libBtns.appendChild(info);
+      }
       const del = el('button', 'lib-del', '🗑');
       del.addEventListener('click', () => {
         if (!confirm(`Delete "${def.name}" from your exercise list? Past workouts keep their data.`)) return;
@@ -775,7 +864,8 @@
         save(KEYS.exercises, exercises);
         renderLibrary();
       });
-      item.appendChild(del);
+      libBtns.appendChild(del);
+      item.appendChild(libBtns);
       list.appendChild(item);
     });
   }
