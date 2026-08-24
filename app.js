@@ -48,6 +48,107 @@
   let workouts = load(KEYS.workouts, []);
   let templates = load(KEYS.templates, []);
   let active = load(KEYS.active, null);
+
+  /* ---------- Starter routines (from the user's Drive plans) ----------
+     Each exercise: [name, muscle group, number of sets, target reps].
+     Target reps are shown as placeholders/hints, not logged values.        */
+  const STARTER_ROUTINES = [
+    { name: '3-Day A · Full Body', exercises: [
+      ['Barbell Bench Press', 'Chest', 3, '8-10'],
+      ['Dumbbell Romanian Deadlift', 'Legs', 3, '8-10'],
+      ['(Weighted) Pull-Ups', 'Back', 3, '6-12'],
+      ['Bulgarian Split Squat (Quad Focus)', 'Legs', 3, '8-10/leg'],
+      ['Seated Mid-Chest Cable Fly', 'Chest', 3, '10-15'],
+      ['Dumbbell Lateral Raise', 'Shoulders', 3, '15-20'],
+      ['Standing Weighted Calf Raise', 'Legs', 3, '10-15'],
+      ['Standing Face Pulls', 'Shoulders', 3, '10'],
+    ]},
+    { name: '3-Day B · Full Body', exercises: [
+      ['Barbell Back Squat', 'Legs', 3, '8-10'],
+      ['Standing Barbell Overhead Press', 'Shoulders', 3, '6-8'],
+      ['Seated Leg Curls', 'Legs', 3, '10-15'],
+      ['Seated Cable Row (Mid/Upper Back)', 'Back', 3, '10-12'],
+      ['Banded Push-Ups', 'Chest', 3, '10+'],
+      ['Incline Dumbbell Overhead Extensions', 'Triceps', 3, '10-15'],
+      ['Seated Weighted Calf Raise', 'Legs', 3, '10-15'],
+      ['RKC Plank', 'Core', 3, '30-60s'],
+    ]},
+    { name: '3-Day C · Full Body', exercises: [
+      ['Barbell Deadlift', 'Legs', 3, '6-8'],
+      ['Low Incline Dumbbell Press', 'Chest', 3, '10-12'],
+      ['Dumbbell Chest Supported Row (Mid/Upper Back)', 'Back', 3, '10-12'],
+      ['Seated Leg Extensions', 'Legs', 3, '10-15'],
+      ['Cable Lateral Raise', 'Shoulders', 3, '15-20'],
+      ['Standing Cable Curl', 'Biceps', 3, '10-15'],
+      ['Standing Face Pulls', 'Shoulders', 2, '10'],
+      ['Bird Dog', 'Core', 2, '5/side'],
+    ]},
+    { name: '4-Day · Upper 1', exercises: [
+      ['Barbell Bench Press', 'Chest', 3, '8-10'],
+      ['(Weighted) Pull-Ups', 'Back', 3, '6-12'],
+      ['Standing Barbell Overhead Press', 'Shoulders', 3, '6-8'],
+      ['Seated Mid-Chest Cable Fly', 'Chest', 3, '10-15'],
+      ['Dumbbell Chest Supported Row (Mid/Upper Back)', 'Back', 3, '10-12'],
+      ['Incline Dumbbell Curls', 'Biceps', 3, '8-10'],
+      ['Lying Incline Lateral Raise', 'Shoulders', 3, '15-20'],
+      ['Standing Face Pulls', 'Shoulders', 2, '10'],
+    ]},
+    { name: '4-Day · Lower 1 (Quads)', exercises: [
+      ['Barbell Back Squat', 'Legs', 3, '8-10'],
+      ['Dumbbell Romanian Deadlift', 'Legs', 3, '8-10'],
+      ['Seated Leg Extensions', 'Legs', 3, '10-15'],
+      ['Walking Lunges (Quad Focus)', 'Legs', 3, '8-10/leg'],
+      ['Standing Weighted Calf Raise', 'Legs', 3, '10-15'],
+      ['Side Plank', 'Core', 2, '30s/side'],
+    ]},
+    { name: '4-Day · Upper 2', exercises: [
+      ['Low Incline Dumbbell Press', 'Chest', 3, '8-10'],
+      ['Chest Supported Dumbbell Row (Lat Focus)', 'Back', 3, '10-12'],
+      ['Flat Dumbbell Press', 'Chest', 3, '8-10'],
+      ['Rear Delt Cable Row', 'Shoulders', 3, '12-15'],
+      ['Cable Lateral Raise', 'Shoulders', 3, '15-20'],
+      ['Hammer Curls', 'Biceps', 3, '8-10'],
+      ['Incline Dumbbell Overhead Extensions', 'Triceps', 3, '10-15'],
+      ['Standing Face Pulls', 'Shoulders', 2, '10'],
+    ]},
+    { name: '4-Day · Lower 2 (Glutes)', exercises: [
+      ['Barbell Deadlift', 'Legs', 3, '6-8'],
+      ['Bulgarian Split Squat (Glute Focus)', 'Glutes', 3, '8-10/leg'],
+      ['Barbell Hip Thrust', 'Glutes', 3, '10-15'],
+      ['Lying Leg Curls', 'Legs', 3, '10-15'],
+      ['Banded Hip Abductions', 'Glutes', 3, '12'],
+      ['Seated Weighted Calf Raise', 'Legs', 3, '8-10'],
+    ]},
+  ];
+
+  function findOrCreateExercise(name, muscle) {
+    let def = exercises.find((e) => e.name.toLowerCase() === name.toLowerCase());
+    if (!def) {
+      def = { id: uid(), name, muscle: muscle || '' };
+      exercises.push(def);
+    }
+    return def;
+  }
+
+  // Seed the Drive plans once. Skips any routine whose name already exists.
+  function seedStarterRoutines() {
+    if (localStorage.getItem('wt.seeded.plans') === '1') return;
+    let added = 0;
+    STARTER_ROUTINES.forEach((r) => {
+      if (templates.some((t) => t.name.toLowerCase() === r.name.toLowerCase())) return;
+      const exs = r.exercises.map(([name, muscle, count, rep]) => {
+        const def = findOrCreateExercise(name, muscle);
+        return {
+          exId: def.id, name: def.name, muscle: def.muscle,
+          sets: Array.from({ length: count }, () => ({ weight: '', reps: rep })),
+        };
+      });
+      templates.push({ id: uid(), name: r.name, exercises: exs });
+      added++;
+    });
+    if (added) { save(KEYS.exercises, exercises); save(KEYS.templates, templates); }
+    localStorage.setItem('wt.seeded.plans', '1');
+  }
   const settings = Object.assign(
     { restDefault: 90, autostart: true, sound: true },
     load(KEYS.settings, {})
@@ -697,6 +798,7 @@
   /* ============================================================
      Boot
      ============================================================ */
+  seedStarterRoutines();
   renderWorkout();
 
   // Register service worker for offline use (optional; ignored if unsupported).
