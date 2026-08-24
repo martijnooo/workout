@@ -24,9 +24,11 @@
       <!-- ============ WORKOUT VIEW ============ -->
       <section id="view-workout" class="view is-active">
         <!-- No active workout -->
-        <div id="workout-empty" class="card center-card">
-          <p class="muted">No workout in progress.</p>
-          <button id="start-workout" class="btn btn-primary btn-lg">Start a workout</button>
+        <div id="workout-empty">
+          <button id="start-workout" class="btn btn-primary btn-lg btn-block">+ Start empty workout</button>
+          <div class="section-label">Your routines</div>
+          <div id="routine-list"></div>
+          <p id="routine-empty" class="muted routine-hint">No saved routines yet. Start a workout, add your exercises, then tap <b>Save as routine</b> to reuse it next time.</p>
         </div>
 
         <!-- Active workout -->
@@ -49,6 +51,7 @@
           <div id="exercise-list"></div>
 
           <button id="add-exercise" class="btn btn-dashed btn-block">+ Add exercise</button>
+          <button id="save-routine" class="btn btn-ghost btn-block save-routine-btn">☆ Save as routine</button>
         </div>
       </section>
 

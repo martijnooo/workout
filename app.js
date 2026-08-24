@@ -10,6 +10,7 @@
     workouts: 'wt.workouts',
     active: 'wt.active',
     settings: 'wt.settings',
+    templates: 'wt.templates',
   };
 
   function load(key, fallback) {
@@ -45,6 +46,7 @@
     save(KEYS.exercises, exercises);
   }
   let workouts = load(KEYS.workouts, []);
+  let templates = load(KEYS.templates, []);
   let active = load(KEYS.active, null);
   const settings = Object.assign(
     { restDefault: 90, autostart: true, sound: true },
@@ -85,6 +87,7 @@
   $('#finish-workout').addEventListener('click', finishWorkout);
   $('#discard-workout').addEventListener('click', discardWorkout);
   $('#add-exercise').addEventListener('click', openPicker);
+  $('#save-routine').addEventListener('click', saveAsRoutine);
   $('#workout-name').addEventListener('input', (e) => {
     if (active) { active.name = e.target.value; persistActive(); }
   });
@@ -104,6 +107,103 @@
     const h = new Date().getHours();
     const part = h < 12 ? 'Morning' : h < 17 ? 'Afternoon' : 'Evening';
     return part + ' Workout';
+  }
+
+  /* ---------- Routines / templates ---------- */
+  function renderRoutines() {
+    const list = $('#routine-list');
+    list.innerHTML = '';
+    $('#routine-empty').classList.toggle('hidden', templates.length > 0);
+
+    templates.forEach((tpl) => {
+      const card = el('div', 'routine-card');
+
+      const body = el('div', 'routine-body');
+      body.appendChild(el('div', 'routine-name', tpl.name));
+      const names = tpl.exercises.map((e) => e.name).join(', ');
+      const setCount = tpl.exercises.reduce((n, e) => n + e.sets.length, 0);
+      body.appendChild(el('div', 'routine-sub',
+        `${tpl.exercises.length} exercises · ${setCount} sets — ${names}`));
+      card.appendChild(body);
+
+      card.appendChild(el('div', 'routine-go', 'Start ›'));
+
+      const del = el('button', 'routine-del', '🗑');
+      del.title = 'Delete routine';
+      del.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!confirm(`Delete the "${tpl.name}" routine? Your logged workouts are not affected.`)) return;
+        templates = templates.filter((t) => t.id !== tpl.id);
+        save(KEYS.templates, templates);
+        renderRoutines();
+      });
+      card.appendChild(del);
+
+      card.addEventListener('click', () => startFromTemplate(tpl));
+      list.appendChild(card);
+    });
+  }
+
+  function startFromTemplate(tpl) {
+    active = {
+      id: uid(),
+      name: tpl.name,
+      startedAt: Date.now(),
+      fromTemplate: tpl.id,
+      exercises: tpl.exercises.map((tEx) => {
+        const prev = lastPerformance(tEx.exId);
+        return {
+          exId: tEx.exId,
+          name: tEx.name,
+          muscle: tEx.muscle || '',
+          sets: tEx.sets.map((tSet, i) => {
+            const prevSet = prev && prev.sets[i];
+            return {
+              weight: '', reps: '', done: false,
+              // Prefill placeholder from last actual performance, else the routine's target.
+              prevW: prevSet ? prevSet.weight : tSet.weight,
+              prevR: prevSet ? prevSet.reps : tSet.reps,
+            };
+          }),
+        };
+      }),
+    };
+    persistActive();
+    renderWorkout();
+  }
+
+  function saveAsRoutine() {
+    if (!active || !active.exercises.length) {
+      alert('Add some exercises first, then save the workout as a routine.');
+      return;
+    }
+    const existing = templates.find((t) => t.id === active.fromTemplate);
+    const suggested = active.name || (existing && existing.name) || 'My Routine';
+    const name = (prompt('Name this routine:', suggested) || '').trim();
+    if (!name) return;
+
+    const tplExercises = active.exercises.map((ex) => ({
+      exId: ex.exId,
+      name: ex.name,
+      muscle: ex.muscle,
+      // Store the set structure with whatever targets are entered (or last-known).
+      sets: ex.sets.map((s) => ({
+        weight: s.weight !== '' ? s.weight : (s.prevW ?? ''),
+        reps: s.reps !== '' ? s.reps : (s.prevR ?? ''),
+      })),
+    }));
+
+    // Overwrite a routine of the same name, otherwise add a new one.
+    const idx = templates.findIndex((t) => t.name.toLowerCase() === name.toLowerCase());
+    if (idx >= 0) {
+      templates[idx] = { ...templates[idx], name, exercises: tplExercises };
+    } else {
+      templates.unshift({ id: uid(), name, exercises: tplExercises });
+    }
+    save(KEYS.templates, templates);
+    active.fromTemplate = (idx >= 0 ? templates[idx].id : templates[0].id);
+    persistActive();
+    alert(`Saved "${name}" — you'll see it on the start screen.`);
   }
 
   function discardWorkout() {
@@ -180,6 +280,7 @@
     if (!active) {
       emptyBox.classList.remove('hidden');
       activeBox.classList.add('hidden');
+      renderRoutines();
       return;
     }
     emptyBox.classList.add('hidden');

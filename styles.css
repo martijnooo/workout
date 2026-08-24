@@ -202,6 +202,29 @@ main { padding: 16px; }
 .add-set-btn { flex: 1; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
 .add-set-btn:hover { color: var(--text); }
 
+/* ---------- Routines (start screen) ---------- */
+.section-label {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); font-weight: 700;
+  margin: 26px 0 12px;
+}
+.routine-hint { font-size: 14px; line-height: 1.5; }
+.routine-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 14px; margin-bottom: 10px;
+  cursor: pointer; transition: border-color .15s, transform .05s;
+}
+.routine-card:hover { border-color: var(--primary); }
+.routine-card:active { transform: scale(.99); }
+.routine-body { flex: 1; min-width: 0; }
+.routine-name { font-weight: 700; font-size: 16px; }
+.routine-sub { color: var(--muted); font-size: 13px; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.routine-go { flex-shrink: 0; color: var(--primary); font-weight: 700; font-size: 14px; }
+.routine-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 6px; flex-shrink: 0; }
+.routine-del:hover { color: var(--danger); }
+.save-routine-btn { margin-top: 10px; }
+
 /* ---------- History ---------- */
 .history-item { cursor: pointer; }
 .history-item .exercise-title { margin-bottom: 2px; }
