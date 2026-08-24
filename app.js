@@ -179,6 +179,58 @@
   }
 
   /* ============================================================
+     In-app dialogs (native confirm/prompt/alert are blocked in the
+     sandboxed artifact iframe, so we roll our own).
+     ============================================================ */
+  const dialogModal = $('#dialog-modal');
+  const dialogInput = $('#dialog-input');
+  let dialogResolve = null;
+
+  function closeDialog(value) {
+    dialogModal.classList.add('hidden');
+    const r = dialogResolve; dialogResolve = null;
+    if (r) r(value);
+  }
+  $('#dialog-ok').addEventListener('click', () => {
+    closeDialog(dialogInput.classList.contains('hidden') ? true : dialogInput.value);
+  });
+  $$('[data-dialog-cancel]').forEach((n) =>
+    n.addEventListener('click', () => closeDialog(null)));
+  dialogInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') closeDialog(dialogInput.value);
+  });
+
+  function uiConfirm(message, okLabel = 'OK') {
+    return new Promise((resolve) => {
+      dialogResolve = resolve;
+      $('#dialog-title').textContent = message;
+      dialogInput.classList.add('hidden');
+      $('#dialog-ok').textContent = okLabel;
+      dialogModal.classList.remove('hidden');
+    });
+  }
+  function uiPrompt(message, defaultValue = '', okLabel = 'Save') {
+    return new Promise((resolve) => {
+      dialogResolve = resolve;
+      $('#dialog-title').textContent = message;
+      dialogInput.classList.remove('hidden');
+      dialogInput.value = defaultValue;
+      $('#dialog-ok').textContent = okLabel;
+      dialogModal.classList.remove('hidden');
+      setTimeout(() => { dialogInput.focus(); dialogInput.select(); }, 50);
+    });
+  }
+
+  let toastTimer = null;
+  function toast(message) {
+    const t = $('#toast');
+    t.textContent = message;
+    t.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.add('hidden'), 2600);
+  }
+
+  /* ============================================================
      Navigation
      ============================================================ */
   $$('.tab-btn').forEach((btn) => {
@@ -245,9 +297,9 @@
 
       const del = el('button', 'routine-del', '🗑');
       del.title = 'Delete routine';
-      del.addEventListener('click', (e) => {
+      del.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (!confirm(`Delete the "${tpl.name}" routine? Your logged workouts are not affected.`)) return;
+        if (!(await uiConfirm(`Delete the "${tpl.name}" routine? Your logged workouts are not affected.`, 'Delete'))) return;
         templates = templates.filter((t) => t.id !== tpl.id);
         save(KEYS.templates, templates);
         renderRoutines();
@@ -287,14 +339,14 @@
     renderWorkout();
   }
 
-  function saveAsRoutine() {
+  async function saveAsRoutine() {
     if (!active || !active.exercises.length) {
-      alert('Add some exercises first, then save the workout as a routine.');
+      toast('Add some exercises first, then save as a routine.');
       return;
     }
     const existing = templates.find((t) => t.id === active.fromTemplate);
     const suggested = active.name || (existing && existing.name) || 'My Routine';
-    const name = (prompt('Name this routine:', suggested) || '').trim();
+    const name = ((await uiPrompt('Name this routine:', suggested)) || '').trim();
     if (!name) return;
 
     const tplExercises = active.exercises.map((ex) => ({
@@ -318,19 +370,20 @@
     save(KEYS.templates, templates);
     active.fromTemplate = (idx >= 0 ? templates[idx].id : templates[0].id);
     persistActive();
-    alert(`Saved "${name}" — you'll see it on the start screen.`);
+    toast(`Saved "${name}" — it's on the start screen.`);
   }
 
-  function discardWorkout() {
+  async function discardWorkout() {
     if (!active) return;
-    if (active.exercises.length && !confirm('Discard this workout? Nothing will be saved.')) return;
+    if (active.exercises.length &&
+        !(await uiConfirm('Discard this workout? Nothing will be saved.', 'Discard'))) return;
     active = null;
     localStorage.removeItem(KEYS.active);
     stopRest();
     renderWorkout();
   }
 
-  function finishWorkout() {
+  async function finishWorkout() {
     if (!active) return;
     // Drop empty sets / exercises with no completed data.
     const cleaned = active.exercises
@@ -341,7 +394,7 @@
       .filter((ex) => ex.sets.length > 0);
 
     if (cleaned.length === 0) {
-      if (!confirm('No sets logged. Discard this workout?')) return;
+      if (!(await uiConfirm('No sets logged yet. Discard this workout?', 'Discard'))) return;
       discardWorkout();
       return;
     }
@@ -414,17 +467,67 @@
     });
   }
 
+  /* ---------- Drag-and-drop reordering (pointer-based, mobile-friendly) ---------- */
+  let drag = null;
+  function startDrag(e, box, handle) {
+    e.preventDefault();
+    const list = $('#exercise-list');
+    handle.setPointerCapture(e.pointerId);
+    drag = { box, list, pointerId: e.pointerId, handle };
+    box.classList.add('dragging');
+    document.body.classList.add('is-dragging');
+    handle.addEventListener('pointermove', onDragMove);
+    handle.addEventListener('pointerup', endDrag);
+    handle.addEventListener('pointercancel', endDrag);
+  }
+  function onDragMove(e) {
+    if (!drag) return;
+    e.preventDefault();
+    const y = e.clientY;
+    const siblings = Array.from(drag.list.children).filter((c) => c !== drag.box);
+    let placed = false;
+    for (const c of siblings) {
+      const r = c.getBoundingClientRect();
+      if (y < r.top + r.height / 2) { drag.list.insertBefore(drag.box, c); placed = true; break; }
+    }
+    if (!placed) drag.list.appendChild(drag.box);
+  }
+  function endDrag(e) {
+    if (!drag) return;
+    const { box, list, handle } = drag;
+    handle.removeEventListener('pointermove', onDragMove);
+    handle.removeEventListener('pointerup', endDrag);
+    handle.removeEventListener('pointercancel', endDrag);
+    box.classList.remove('dragging');
+    document.body.classList.remove('is-dragging');
+    // Rebuild the exercise order from the DOM.
+    const order = Array.from(list.children).map((c) => c.dataset.key);
+    active.exercises.sort((a, b) => order.indexOf(a.__key) - order.indexOf(b.__key));
+    persistActive();
+    drag = null;
+    renderExercises();
+  }
+
   function renderExerciseBlock(ex, exIdx) {
     const box = el('div', 'exercise');
+    if (!ex.__key) ex.__key = uid();
+    box.dataset.key = ex.__key;
 
     const head = el('div', 'exercise-head');
-    const titleWrap = el('div');
+
+    const handle = el('button', 'drag-handle', '⠿');
+    handle.title = 'Drag to reorder';
+    handle.setAttribute('aria-label', 'Drag to reorder');
+    handle.addEventListener('pointerdown', (e) => startDrag(e, box, handle));
+    head.appendChild(handle);
+
+    const titleWrap = el('div', 'exercise-title-wrap');
     titleWrap.appendChild(el('div', 'exercise-title', ex.name));
     if (ex.muscle) titleWrap.appendChild(el('div', 'exercise-muscle', ex.muscle));
     head.appendChild(titleWrap);
 
     const headBtns = el('div', 'exercise-head-btns');
-    if (getExerciseInfo(ex.name)) {
+    if (getExerciseInfo(ex.originName || ex.name)) {
       const info = el('button', 'exercise-menu', 'ⓘ');
       info.title = 'Tutorial & alternatives';
       info.addEventListener('click', () => openInfo(ex, exIdx));
@@ -693,11 +796,14 @@
   const YT = (url) => url; // links open in a new tab; kept as-is
 
   function openInfo(ex, exIdx) {
-    const info = getExerciseInfo(ex.name);
+    // The "origin" is the plan exercise that owns the alternatives list.
+    // After a swap we keep pointing at it, so you can keep swapping / swap back.
+    const originName = ex.originName || ex.name;
+    const info = getExerciseInfo(originName);
     if (!info) return;
     $('#info-title').textContent = ex.name;
 
-    // Tutorial video link
+    // Tutorial video link (of the origin exercise)
     const vidWrap = $('#info-video');
     vidWrap.innerHTML = '';
     if (info.v) {
@@ -706,36 +812,47 @@
       vidWrap.appendChild(a);
     }
 
-    // Alternatives list
+    // Options: the original exercise first (so you can swap back), then the alternatives.
+    const options = [[originName, info.v || null, true]]
+      .concat((info.a || []).map(([name, url]) => [name, url, false]));
+
     const list = $('#info-alts');
     list.innerHTML = '';
-    const alts = info.a || [];
-    $('#info-alts-label').classList.toggle('hidden', alts.length === 0);
-    alts.forEach(([name, url]) => {
+    $('#info-alts-label').classList.toggle('hidden', options.length <= 1);
+
+    options.forEach(([name, url, isOrigin]) => {
       const row = el('div', 'alt-item');
       const left = el('div', 'alt-body');
-      left.appendChild(el('div', 'alt-name', name));
+      left.appendChild(el('div', 'alt-name', name + (isOrigin ? '  ·  original' : '')));
       row.appendChild(left);
 
-      const watch = el('a', 'alt-watch', '▶');
-      watch.title = 'Watch'; watch.href = YT(url); watch.target = '_blank'; watch.rel = 'noopener';
-      row.appendChild(watch);
+      if (url) {
+        const watch = el('a', 'alt-watch', '▶');
+        watch.title = 'Watch'; watch.href = YT(url); watch.target = '_blank'; watch.rel = 'noopener';
+        row.appendChild(watch);
+      }
 
-      // Swap only makes sense inside an active workout
       if (exIdx != null) {
-        const swap = el('button', 'alt-swap', 'Swap in');
-        swap.addEventListener('click', () => {
-          const def = findOrCreateExercise(name, ex.muscle);
-          save(KEYS.exercises, exercises);
-          const target = active.exercises[exIdx];
-          target.exId = def.id;
-          target.name = def.name;
-          target.muscle = def.muscle;
-          persistActive();
-          renderExercises();
-          infoModal.classList.add('hidden');
-        });
-        row.appendChild(swap);
+        const isCurrent = name === ex.name;
+        if (isCurrent) {
+          row.appendChild(el('span', 'alt-current', 'current'));
+        } else {
+          const swap = el('button', 'alt-swap', 'Swap in');
+          swap.addEventListener('click', () => {
+            const def = findOrCreateExercise(name, ex.muscle);
+            save(KEYS.exercises, exercises);
+            const target = active.exercises[exIdx];
+            target.exId = def.id;
+            target.name = def.name;
+            target.muscle = def.muscle;
+            target.originName = originName; // keep the alternatives reachable
+            persistActive();
+            renderExercises();
+            infoModal.classList.add('hidden');
+            toast(isOrigin ? 'Swapped back to the original.' : `Swapped to ${name}.`);
+          });
+          row.appendChild(swap);
+        }
       }
       list.appendChild(row);
     });
@@ -773,9 +890,9 @@
       head.appendChild(left);
       const del = el('button', 'exercise-menu', '🗑');
       del.title = 'Delete workout';
-      del.addEventListener('click', (e) => {
+      del.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (!confirm('Delete this workout?')) return;
+        if (!(await uiConfirm('Delete this workout?', 'Delete'))) return;
         workouts = workouts.filter((x) => x.id !== w.id);
         save(KEYS.workouts, workouts);
         renderHistory();
@@ -829,7 +946,7 @@
     const muscle = $('#new-exercise-muscle').value;
     if (!name) return;
     if (exercises.some((e) => e.name.toLowerCase() === name.toLowerCase())) {
-      alert('That exercise already exists.');
+      toast('That exercise already exists.');
       return;
     }
     exercises.push({ id: uid(), name, muscle });
@@ -858,8 +975,8 @@
         libBtns.appendChild(info);
       }
       const del = el('button', 'lib-del', '🗑');
-      del.addEventListener('click', () => {
-        if (!confirm(`Delete "${def.name}" from your exercise list? Past workouts keep their data.`)) return;
+      del.addEventListener('click', async () => {
+        if (!(await uiConfirm(`Delete "${def.name}" from your exercise list? Past workouts keep their data.`, 'Delete'))) return;
         exercises = exercises.filter((e) => e.id !== def.id);
         save(KEYS.exercises, exercises);
         renderLibrary();

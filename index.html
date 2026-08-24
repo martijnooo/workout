@@ -116,6 +116,22 @@
     </div>
   </div>
 
+  <!-- ============ CONFIRM / PROMPT DIALOG ============ -->
+  <div id="dialog-modal" class="modal hidden">
+    <div class="modal-backdrop" data-dialog-cancel></div>
+    <div class="modal-card dialog-card">
+      <h2 id="dialog-title" class="dialog-title"></h2>
+      <input id="dialog-input" class="input dialog-input hidden" />
+      <div class="dialog-actions">
+        <button id="dialog-cancel" class="btn btn-ghost" data-dialog-cancel>Cancel</button>
+        <button id="dialog-ok" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOAST ============ -->
+  <div id="toast" class="toast hidden"></div>
+
   <!-- ============ EXERCISE INFO MODAL ============ -->
   <div id="info-modal" class="modal hidden">
     <div class="modal-backdrop" data-close></div>
