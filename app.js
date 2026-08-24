@@ -480,76 +480,33 @@
     });
   }
 
-  /* ---------- Drag-and-drop reordering (pointer-based, mobile-friendly) ----------
-     The dragged card follows the finger (translateY) while we live-reorder it
-     in the DOM as it passes neighbours. layoutTop is re-read after each DOM
-     move so the visual position stays glued to the pointer.                     */
-  let drag = null;
-  function startDrag(e, box, handle) {
-    e.preventDefault();
-    const list = $('#exercise-list');
-    handle.setPointerCapture(e.pointerId);
-    const rect = box.getBoundingClientRect();
-    drag = {
-      box, list, handle, pointerId: e.pointerId,
-      grabOffset: e.clientY - rect.top, // pointer position within the card
-      layoutTop: rect.top,
-    };
-    box.classList.add('dragging');
-    document.body.classList.add('is-dragging');
-    handle.addEventListener('pointermove', onDragMove);
-    handle.addEventListener('pointerup', endDrag);
-    handle.addEventListener('pointercancel', endDrag);
-  }
-  function onDragMove(e) {
-    if (!drag) return;
-    e.preventDefault();
-    const { box, list } = drag;
-
-    // Read layout without the transform, decide the new slot, move, re-read top.
-    box.style.transform = '';
-    const siblings = Array.from(list.children).filter((c) => c !== box);
-    let ref = null;
-    for (const c of siblings) {
-      const r = c.getBoundingClientRect();
-      if (e.clientY < r.top + r.height / 2) { ref = c; break; }
-    }
-    if (ref) { if (box.nextElementSibling !== ref) list.insertBefore(box, ref); }
-    else if (box !== list.lastElementChild) list.appendChild(box);
-    drag.layoutTop = box.getBoundingClientRect().top;
-
-    // Glue the card to the finger.
-    box.style.transform = `translateY(${(e.clientY - drag.grabOffset) - drag.layoutTop}px)`;
-  }
-  function endDrag() {
-    if (!drag) return;
-    const { box, list, handle } = drag;
-    handle.removeEventListener('pointermove', onDragMove);
-    handle.removeEventListener('pointerup', endDrag);
-    handle.removeEventListener('pointercancel', endDrag);
-    box.style.transform = '';
-    box.classList.remove('dragging');
-    document.body.classList.remove('is-dragging');
-    // Rebuild the exercise order from the DOM.
-    const order = Array.from(list.children).map((c) => c.dataset.key);
-    active.exercises.sort((a, b) => order.indexOf(a.__key) - order.indexOf(b.__key));
+  /* ---------- Reordering via up/down buttons ---------- */
+  function moveExercise(exIdx, dir) {
+    const j = exIdx + dir;
+    if (j < 0 || j >= active.exercises.length) return;
+    const arr = active.exercises;
+    [arr[exIdx], arr[j]] = [arr[j], arr[exIdx]];
     persistActive();
-    drag = null;
     renderExercises();
   }
 
   function renderExerciseBlock(ex, exIdx) {
     const box = el('div', 'exercise');
-    if (!ex.__key) ex.__key = uid();
-    box.dataset.key = ex.__key;
 
     const head = el('div', 'exercise-head');
 
-    const handle = el('button', 'drag-handle', '⠿');
-    handle.title = 'Drag to reorder';
-    handle.setAttribute('aria-label', 'Drag to reorder');
-    handle.addEventListener('pointerdown', (e) => startDrag(e, box, handle));
-    head.appendChild(handle);
+    const reorder = el('div', 'reorder-btns');
+    const up = el('button', 'reorder-btn', '↑');
+    up.title = 'Move up';
+    up.disabled = exIdx === 0;
+    up.addEventListener('click', () => moveExercise(exIdx, -1));
+    const down = el('button', 'reorder-btn', '↓');
+    down.title = 'Move down';
+    down.disabled = exIdx === active.exercises.length - 1;
+    down.addEventListener('click', () => moveExercise(exIdx, 1));
+    reorder.appendChild(up);
+    reorder.appendChild(down);
+    head.appendChild(reorder);
 
     const titleWrap = el('div', 'exercise-title-wrap');
     titleWrap.appendChild(el('div', 'exercise-title', ex.name));
@@ -1116,6 +1073,27 @@
     ]},
   ];
 
+  // Warm-up (4-day plan). [name, reps/target, cue]
+  const WARMUP_UPPER = [
+    ['Arm Circles', '5 / direction', 'Swing one way for 5 reps, then reverse for 5.'],
+    ['Band Over-and-Backs', '5', 'Wide overhand grip; bring the band over and behind your body.'],
+    ['Band Pull-Aparts', '10', 'Overhand grip ~shoulder-width; pull apart with the mid-back.'],
+    ['Band External Rotations', '10 / side', 'Elbow locked at your side, rotate the hand out then back. Cables work too.'],
+    ['Weighted External Rotations', '10 / side', 'Light weight, elbow locked, rotate the hand up toward the ceiling then down.'],
+  ];
+  const WARMUP_LOWER = [
+    ['Forward Leg Swings', '5 / side', 'Hold support at your side; swing the leg front and back.'],
+    ['Side Leg Swings', '5 / side', 'Hold support in front; swing the leg side to side.'],
+    ['Deep Squat', '30 sec hold', 'Plate at your chest in a deep squat; rock side to side over each ankle.'],
+    ['Dead Bug', '5 / side', 'Keep the core engaged; extend the opposite arm and leg.'],
+  ];
+  // [set, weight, reps, rest]
+  const WARMUP_SETS = [
+    ['1', '50% of working weight', '8', '1:00'],
+    ['2', '70% of working weight', '3–4', '1:00'],
+    ['3', '90% of working weight', '1–2', '2:00'],
+  ];
+
   // [name, duration/target, cue]
   const MOBILITY_DAILY = [
     ['Cat Cow', '60 sec', 'Spine. ~7–8 slow cycles, pausing 1s at each end.'],
@@ -1134,6 +1112,25 @@
   const mobilityDone = new Set(); // in-memory check-off for the current session
 
   function renderExtras() {
+    // ----- Warm-up -----
+    renderMobility($('#warmup-upper'), WARMUP_UPPER);
+    renderMobility($('#warmup-lower'), WARMUP_LOWER);
+    const wsets = $('#warmup-sets');
+    wsets.innerHTML = '';
+    const wcard = el('div', 'card');
+    WARMUP_SETS.forEach(([n, w, reps, rest]) => {
+      const row = el('div', 'guide-row warmup-set-row');
+      row.appendChild(el('div', 'warmup-set-num', n));
+      const g = el('div', 'guide-body');
+      g.appendChild(el('div', 'guide-name', w));
+      g.appendChild(el('div', 'guide-meta', `${reps} reps · rest ${rest}`));
+      row.appendChild(g);
+      wcard.appendChild(row);
+    });
+    wcard.appendChild(el('div', 'mobility-cue',
+      'Only for your first upper and first lower exercise of the day. After that, one quick technique set is plenty.'));
+    wsets.appendChild(wcard);
+
     // ----- Abs workouts -----
     const absList = $('#abs-list');
     absList.innerHTML = '';

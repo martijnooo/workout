@@ -145,28 +145,19 @@ main { padding: 16px; }
 }
 .exercise-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .exercise-title-wrap { flex: 1; min-width: 0; }
-.drag-handle {
-  flex-shrink: 0;
-  background: none; border: none; color: var(--muted);
-  font-size: 18px; line-height: 1; cursor: grab;
-  padding: 6px 6px 6px 0; touch-action: none; user-select: none;
-  -webkit-user-select: none;
-}
-.drag-handle:active { cursor: grabbing; }
-.exercise.dragging {
-  opacity: .95;
-  box-shadow: var(--shadow);
-  border-color: var(--primary);
-  position: relative;
-  z-index: 20;
-  transition: none;
-}
-body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: none; }
-body.is-dragging .exercise:not(.dragging) { transition: transform .18s ease; }
-body.is-dragging .set-input,
-body.is-dragging .set-done { pointer-events: none; }
 .exercise-title { font-size: 16px; font-weight: 700; }
 .exercise-muscle { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+.reorder-btns { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+.reorder-btn {
+  width: 28px; height: 22px; line-height: 1;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 6px; font-size: 13px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.reorder-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.reorder-btn:active:not(:disabled) { transform: scale(.9); }
+.reorder-btn:disabled { opacity: .3; cursor: default; }
 .exercise-head-btns { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
 .exercise-menu { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px 8px; line-height: 1; }
 .exercise-menu:hover { color: var(--text); }
@@ -303,8 +294,15 @@ body.is-dragging .set-done { pointer-events: none; }
 .routine-del:hover { color: var(--danger); }
 .save-routine-btn { margin-top: 10px; }
 
-/* ---------- Extras (abs + mobility) ---------- */
+/* ---------- Extras (warm-up + abs + mobility) ---------- */
 .extras-intro { font-size: 13px; line-height: 1.5; margin: -6px 0 12px; }
+.sub-label { font-size: 12px; font-weight: 700; color: var(--text); margin: 14px 0 8px; }
+.warmup-set-row { align-items: center; }
+.warmup-set-num {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--primary); color: #fff; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
 .extras-guide { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
 .guide-row { display: flex; align-items: center; gap: 10px; }
 .guide-body { flex: 1; min-width: 0; }
