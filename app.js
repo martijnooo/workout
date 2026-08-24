@@ -323,6 +323,7 @@
           exId: tEx.exId,
           name: tEx.name,
           muscle: tEx.muscle || '',
+          ...(typeof tEx.rest === 'number' ? { rest: tEx.rest } : {}),
           sets: tEx.sets.map((tSet, i) => {
             const prevSet = prev && prev.sets[i];
             return {
@@ -353,6 +354,7 @@
       exId: ex.exId,
       name: ex.name,
       muscle: ex.muscle,
+      ...(typeof ex.rest === 'number' ? { rest: ex.rest } : {}),
       // Store the set structure with whatever targets are entered (or last-known).
       sets: ex.sets.map((s) => ({
         weight: s.weight !== '' ? s.weight : (s.prevW ?? ''),
@@ -569,6 +571,13 @@
       renderExercises();
     });
     actions.appendChild(addSet);
+
+    const restChip = el('button', 'rest-chip', `⏱ ${fmtClock(restForExercise(ex))}`);
+    restChip.title = 'Rest for this exercise';
+    if (typeof ex.rest !== 'number') restChip.classList.add('is-default');
+    restChip.addEventListener('click', () => openExerciseRest(exIdx));
+    actions.appendChild(restChip);
+
     box.appendChild(actions);
 
     return box;
@@ -606,7 +615,7 @@
       }
       persistActive();
       renderExercises();
-      if (set.done && settings.autostart) startRest(settings.restDefault);
+      if (set.done && settings.autostart) startRest(restForExercise(ex));
     });
     row.appendChild(doneBtn);
 
@@ -694,6 +703,32 @@
   let restTotal = 0;
   let restRemaining = 0;
 
+  /* ---------- Per-exercise rest ----------
+     Sensible per-exercise defaults derived from the plans: heavy compounds
+     rest longest, isolation less, core/superset least. Falls back to the
+     global default. An explicit ex.rest (set by the user) always wins.        */
+  const REST_DEFAULTS = {
+    'Barbell Bench Press': 180, 'Barbell Back Squat': 180, 'Barbell Deadlift': 180,
+    'Standing Barbell Overhead Press': 180, '(Weighted) Pull-Ups': 180,
+    'Dumbbell Romanian Deadlift': 180, 'Bulgarian Split Squat (Quad Focus)': 120,
+    'Bulgarian Split Squat (Glute Focus)': 120, 'Low Incline Dumbbell Press': 150,
+    'Flat Dumbbell Press': 120, 'Walking Lunges (Quad Focus)': 120,
+    'Seated Cable Row (Mid/Upper Back)': 120, 'Dumbbell Chest Supported Row (Mid/Upper Back)': 120,
+    'Chest Supported Dumbbell Row (Lat Focus)': 120, 'Rear Delt Cable Row': 105,
+    'Seated Leg Extensions': 105, 'Seated Leg Curls': 105, 'Lying Leg Curls': 105,
+    'Barbell Hip Thrust': 105, 'Seated Mid-Chest Cable Fly': 90, 'Cable Lateral Raise': 90,
+    'Dumbbell Lateral Raise': 90, 'Lying Incline Lateral Raise': 90, 'Standing Cable Curl': 90,
+    'Incline Dumbbell Curls': 90, 'Hammer Curls': 90, 'Incline Dumbbell Overhead Extensions': 90,
+    'Standing Weighted Calf Raise': 90, 'Seated Weighted Calf Raise': 90,
+    'Standing Face Pulls': 60, 'Banded Push-Ups': 60, 'Banded Hip Abductions': 60,
+    'RKC Plank': 60, 'Side Plank': 60, 'Bird Dog': 60,
+  };
+  function restForExercise(ex) {
+    if (ex && typeof ex.rest === 'number') return ex.rest;
+    if (ex && REST_DEFAULTS[ex.name] != null) return REST_DEFAULTS[ex.name];
+    return settings.restDefault;
+  }
+
   function startRest(seconds) {
     restTotal = seconds;
     restRemaining = seconds;
@@ -742,23 +777,36 @@
   // Tap the countdown display to open rest settings.
   $('.rest-display').addEventListener('click', openRestSettings);
 
-  // WebAudio beep (no external asset).
+  // WebAudio beep (no external asset). Browsers require the audio context to be
+  // created/resumed from a user gesture, so we unlock it on the first tap.
   let audioCtx = null;
-  function beep() {
+  function ensureAudio() {
     try {
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      const now = audioCtx.currentTime;
-      [0, 0.18, 0.36].forEach((t) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.frequency.value = 880;
-        osc.type = 'sine';
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) { /* audio unavailable */ }
+    return audioCtx;
+  }
+  // Prime audio on the first interaction anywhere.
+  window.addEventListener('pointerdown', ensureAudio, { once: false });
+
+  function beep() {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      // A rising three-tone chime so the end of rest is unmistakable.
+      [[0, 660], [0.2, 880], [0.4, 1175]].forEach(([t, freq]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.value = freq;
+        osc.type = 'triangle';
         gain.gain.setValueAtTime(0.0001, now + t);
-        gain.gain.exponentialRampToValueAtTime(0.3, now + t + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.15);
-        osc.connect(gain).connect(audioCtx.destination);
+        gain.gain.exponentialRampToValueAtTime(0.4, now + t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.22);
+        osc.connect(gain).connect(ctx.destination);
         osc.start(now + t);
-        osc.stop(now + t + 0.16);
+        osc.stop(now + t + 0.24);
       });
     } catch (e) { /* audio unavailable */ }
   }
@@ -787,6 +835,41 @@
       $('#rest-default-input').value = settings.restDefault;
       save(KEYS.settings, settings);
     });
+  });
+
+  /* ---------- Per-exercise rest modal ---------- */
+  const exRestModal = $('#ex-rest-modal');
+  let exRestIdx = null;
+  function openExerciseRest(exIdx) {
+    exRestIdx = exIdx;
+    const ex = active.exercises[exIdx];
+    $('#ex-rest-title').textContent = ex.name;
+    $('#ex-rest-input').value = restForExercise(ex);
+    exRestModal.classList.remove('hidden');
+  }
+  function setExerciseRest(seconds) {
+    if (exRestIdx == null) return;
+    active.exercises[exRestIdx].rest = Math.max(0, seconds || 0);
+    persistActive();
+    renderExercises();
+  }
+  $('#ex-rest-input').addEventListener('input', (e) => {
+    setExerciseRest(parseInt(e.target.value, 10));
+  });
+  $$('#ex-rest-modal .chip').forEach((c) => {
+    c.addEventListener('click', () => {
+      const s = parseInt(c.dataset.exPreset, 10);
+      $('#ex-rest-input').value = s;
+      setExerciseRest(s);
+    });
+  });
+  $('#ex-rest-default').addEventListener('click', () => {
+    if (exRestIdx == null) return;
+    delete active.exercises[exRestIdx].rest; // fall back to the smart default
+    persistActive();
+    renderExercises();
+    $('#ex-rest-input').value = restForExercise(active.exercises[exRestIdx]);
+    toast('Using the default rest for this exercise.');
   });
 
   /* ============================================================
@@ -866,6 +949,7 @@
       pickerModal.classList.add('hidden');
       restSettingsModal.classList.add('hidden');
       infoModal.classList.add('hidden');
+      exRestModal.classList.add('hidden');
     });
   });
 

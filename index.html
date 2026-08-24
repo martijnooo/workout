@@ -146,6 +146,33 @@
     </div>
   </div>
 
+  <!-- ============ PER-EXERCISE REST MODAL ============ -->
+  <div id="ex-rest-modal" class="modal hidden">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="ex-rest-title">Rest</h2>
+        <button class="modal-x" data-close>✕</button>
+      </div>
+      <p class="muted ex-rest-sub">Rest timer used after each set of this exercise.</p>
+      <label class="field">
+        <div class="row">
+          <input id="ex-rest-input" class="input" type="number" min="0" step="5" inputmode="numeric" />
+          <span class="suffix">seconds</span>
+        </div>
+      </label>
+      <div class="preset-row">
+        <button class="chip" data-ex-preset="60">1:00</button>
+        <button class="chip" data-ex-preset="90">1:30</button>
+        <button class="chip" data-ex-preset="120">2:00</button>
+        <button class="chip" data-ex-preset="150">2:30</button>
+        <button class="chip" data-ex-preset="180">3:00</button>
+      </div>
+      <button id="ex-rest-default" class="btn btn-ghost btn-block">Use default for this exercise</button>
+      <button class="btn btn-primary btn-block ex-rest-done" data-close>Done</button>
+    </div>
+  </div>
+
   <!-- ============ REST SETTINGS MODAL ============ -->
   <div id="rest-settings-modal" class="modal hidden">
     <div class="modal-backdrop" data-close></div>

@@ -266,6 +266,15 @@ body.is-dragging .set-input { pointer-events: none; }
 .exercise-actions { display: flex; gap: 8px; padding: 8px 0 6px; }
 .add-set-btn { flex: 1; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
 .add-set-btn:hover { color: var(--text); }
+.rest-chip {
+  flex-shrink: 0; background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 9px 12px;
+  font-size: 13px; font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums;
+}
+.rest-chip:hover { border-color: var(--primary); }
+.rest-chip.is-default { color: var(--muted); font-weight: 600; }
+.ex-rest-sub { font-size: 13px; margin: -4px 0 16px; }
+.ex-rest-done { margin-top: 10px; }
 
 /* ---------- Routines (start screen) ---------- */
 .section-label {
