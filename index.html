@@ -16,6 +16,7 @@
       <nav class="tabs">
         <button class="tab-btn is-active" data-view="workout">Workout</button>
         <button class="tab-btn" data-view="history">History</button>
+        <button class="tab-btn" data-view="extras">Extras</button>
         <button class="tab-btn" data-view="exercises">Exercises</button>
       </nav>
     </header>
@@ -85,6 +86,21 @@
           </div>
         </div>
         <div id="exercise-library"></div>
+      </section>
+
+      <!-- ============ EXTRAS VIEW (abs + mobility) ============ -->
+      <section id="view-extras" class="view">
+        <div class="section-label">Abs — 2× per week</div>
+        <p class="muted extras-intro">Tap Start to track it like any workout. Do the exercises as a circuit (one after another), rest ~2 min, repeat for 3 rounds.</p>
+        <div id="abs-list"></div>
+
+        <div class="section-label">Daily mobility</div>
+        <p class="muted extras-intro">5 moves, ~1 minute each. Aim for once a day — as many quality reps as you can.</p>
+        <div id="mobility-daily"></div>
+
+        <div class="section-label">Prehab — 2× per week</div>
+        <p class="muted extras-intro">Rest ~30–60s between sets. Great after a lift or on a rest day.</p>
+        <div id="mobility-prehab"></div>
       </section>
     </main>
 

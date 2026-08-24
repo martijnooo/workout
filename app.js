@@ -125,6 +125,16 @@
      Shape: { "<exercise>": { v: tutorialUrl, a: [ [altName, altUrl], ... ] } }        */
   const EXERCISE_INFO = {"Barbell Bench Press":{"v":"https://youtu.be/pCGVSBk0bIQ","a":[["Flat Dumbbell Press","https://youtu.be/g14dhC5KYBM"],["Flat Machine Chest Press","https://youtu.be/sO8lFa9CidE"],["Flat Smith Machine Chest Press","https://youtu.be/3Z3C44SXSQE"],["Seated Flat Cable Press","https://youtu.be/hPpNTAEDnxM"],["Neutral Grip Dumbbell Press (*shoulder friendly)","https://youtu.be/N-kUwH1uf9c"]]},"Dumbbell Romanian Deadlift":{"v":"https://youtu.be/Xu4DxwKWzl4","a":[["Barbell Romanian Deadlift","https://youtu.be/Q-2telZDPRw"],["Hyperextensions (back/ hamstring focused)","https://youtu.be/RU5d2H_OmSc"]]},"(Weighted) Pull-Ups":{"a":[["(Weighted) Chin-Ups","https://youtu.be/-TZRdvUS7Qo"],["Banded Pull-Ups","https://youtu.be/VGm-f5-T5no"],["Inverted Row","https://youtu.be/SyMSay4zrsA"],["Kneeling Lat Pulldowns","https://youtu.be/4LxKeTqlpZA"],["Lat Pulldowns","https://youtu.be/AvYZZhEl7Xk"]]},"Bulgarian Split Squat (Quad Focus)":{"v":"https://youtu.be/r9XtxWSTlcg","a":[["Heel Elevated Split Squat","https://youtu.be/bJE0-eZLa6E"],["Walking Lunges (quad focused)","https://youtu.be/JB20RuTOaFc"],["Reverse Lunges (*knee friendly)","https://youtu.be/AUEGDvCrQJA"],["Weighted Step Ups (*knee friendly)","https://youtu.be/Cjc3AgmdtlA"]]},"Seated Mid-Chest Cable Fly":{"a":[["Standing Mid-Chest Cable Fly","https://youtu.be/fyFVaCP9J-8"],["Pec-Deck Machine Fly","https://youtu.be/rnV3y1P7894"],["Dumbbell Fly","https://youtu.be/WRn2hqy0gXU"],["Banded Push-Ups","https://youtu.be/dI7LVElfMOg"],["Standing Mid-Chest Cable Fly","https://youtu.be/Y8E3dHNsSTU"]]},"Dumbbell Lateral Raise":{"a":[["Cable Lateral Raise","https://youtu.be/1muit9qEctY"],["Lying Incline Lateral Raise","https://youtu.be/upEqeI0F73M"],["Lean In Lateral Raise","https://youtu.be/2q4kjTDg-vs"],["Wide Grip Barbell Upright Row (last resort)","https://youtu.be/6BTMVh9AnCw"]]},"Standing Weighted Calf Raise":{"a":[["Toes-Elevated Smith Machine Calf Raises","https://youtu.be/_ChZv2iluM8"],["Single Leg Weighted Calf Raise","https://youtu.be/cRKA_Qdut7I"],["Leg Press Calf Raises","https://youtu.be/s8yUXsZrgE0"]]},"Standing Face Pulls":{"a":[["Bent Over Dumbbell Face Pulls","https://youtu.be/kA415Unr-_E"],["(Weighted) Prone Arm Circles","https://youtu.be/6D-4V_M8RJA"],["Wall Slides","https://youtu.be/x4zjfuLXHVk"]]},"Barbell Back Squat":{"a":[["Quad-Focused Leg Press","https://youtu.be/0nrW-q7-WRQ"],["Smith Machine Squat","https://youtu.be/zSVi51Jp3eI"],["Barbell Back Box Squat (*knee friendly)","https://youtu.be/QryQO4VuPK8"],["Weighted Step-Ups (*knee friendly)","https://youtu.be/Cjc3AgmdtlA"],["Goblet Squat (*lower back friendly)","https://youtu.be/nYDEYFXN2Rs"],["Bulgarian Split Squat (quad-focused)","https://youtu.be/r9XtxWSTlcg"]]},"Standing Barbell Overhead Press":{"a":[["Standing Dumbbell Shoulder Press","https://youtu.be/jWriqmLrQqs"],["Seated Dumbbell Shoulder Press","https://youtu.be/DPXG3BJvl8A"],["Seated Neutral-Grip Dumbbell Shoulder Press (*shoulder friendly)","https://youtu.be/W35eREjZnhI"]]},"Seated Leg Curls":{"v":"https://youtu.be/81umRgyxIAU","a":[["Lying Leg Curls","https://youtu.be/aYy3alWRDmk"],["Swiss Ball Leg Curls","https://youtu.be/uRBpd65dbYs"],["Dumbbell Lying Leg Curls","https://youtu.be/Ot1MZipNLOQ"]]},"Seated Cable Row (Mid/Upper Back)":{"v":"https://youtu.be/Q-5V5T55giY","a":[["Dumbbell Chest Supported Row (mid/upper back focused)","https://youtu.be/kNvy2_9Ji2w"],["Barbell Row (mid/upper back focused)","https://youtu.be/FTCmwlfZ29A"],["Chest Supported Machine Row","https://youtu.be/iDiVxqvHGWY"]]},"Banded Push-Ups":{"v":"https://youtu.be/dI7LVElfMOg","a":[["Close-Grip Barbell Bench Press","https://youtu.be/JzCGNgXuATs"],["Close-Grip Push-Ups","https://youtu.be/ZtAz8gupAss"],["Close-Grip Dumbbell Press","https://youtu.be/wHx9-aLjDOM"],["Close-Grip Smith Machine Press","https://youtu.be/GIuRW-MDHK8"],["Cable Pushdowns","https://youtu.be/MlfCS_7ZLXA"]]},"Incline Dumbbell Overhead Extensions":{"a":[["Overhead Rope Extensions","https://youtu.be/7yoTblFCUQM"],["Cable Pushdowns (*elbow friendly)","https://youtu.be/MlfCS_7ZLXA"],["Incline Barbell Skullcrushers","https://youtu.be/XgwPiPY4vCI"],["Cross Cable Tricep Extensions","https://youtu.be/Fua2QlXnn6Y"]]},"RKC Plank":{"v":"https://youtu.be/lOgA1UfFbWY","a":[["Side Plank","https://youtu.be/o4LGPtKjbhU"],["Bird Dog","https://youtu.be/4qE_9h_6Hes"],["Palloff Press","https://youtu.be/WhCH2CwVo4I"],["Dead Bug","https://youtu.be/UJ7b8gYa2Es"]]},"Barbell Deadlift":{"a":[["Sumo Deadlift (*lower back friendly)","https://youtu.be/9rXKd-_DaRs"],["Trap Bar Deadlift (*lower back friendly)","https://youtu.be/5mnlJtf-7WM"],["Dumbbell Romanian Deadlift","https://youtu.be/Xu4DxwKWzl4"],["Hyperextensions (back/ hamstring focused)","https://youtu.be/RU5d2H_OmSc"],["Glute Focused Leg Press","https://youtu.be/p13BNdwR93A"]]},"Low Incline Dumbbell Press":{"a":[["Incline Machine Chest Press","https://youtu.be/abc1fisYB3w"],["Low Incline Smith Machine Press","https://youtu.be/R53nThQcdZo"],["Low Incline Barbell Press","https://youtu.be/jW4j7FoqudI"],["Low Incline Cable Press","https://youtu.be/6qV1WZ_z0u0"],["(Banded) Decline Push-Ups","https://youtu.be/LdahU9kB-u0"]]},"Dumbbell Chest Supported Row (Mid/Upper Back)":{"v":"https://youtu.be/kNvy2_9Ji2w","a":[["Barbell Row (mid/upper back focused)","https://youtu.be/FTCmwlfZ29A"],["Seated Cable Row (mid/ upper back focused)","https://youtu.be/Q-5V5T55giY"],["Chest Supported Machine Row","https://youtu.be/iDiVxqvHGWY"]]},"Seated Leg Extensions":{"a":[["Sissy Squat","https://youtu.be/3SeCC8ABZ_Q"],["Heel Elevated Goblet Squat","https://youtu.be/l9crMLuT4II"],["Reverse Lunges (*knee friendly)","https://youtu.be/AUEGDvCrQJA"]]},"Cable Lateral Raise":{"v":"https://youtu.be/1muit9qEctY","a":[["Dumbbell Lateral Raises","https://youtu.be/zcO3sgAeLA0"],["Lying Incline Lateral Raises","https://youtu.be/upEqeI0F73M"],["Lean In Lateral Raise","https://youtu.be/2q4kjTDg-vs"],["Wide Grip Barbell Upright Row (last resort)","https://youtu.be/6BTMVh9AnCw"]]},"Standing Cable Curl":{"a":[["Seated Dumbbell Curls","https://youtu.be/qUAzPq4B2aw"],["Dumbbell Spider Curls","https://youtu.be/hDDcQkCxHjE"]]},"Bird Dog":{"v":"https://youtu.be/4qE_9h_6Hes","a":[["RKC Plank","https://youtu.be/lOgA1UfFbWY"],["Side Plank","https://youtu.be/o4LGPtKjbhU"],["Palloff Press","https://youtu.be/WhCH2CwVo4I"],["Dead Bug","https://youtu.be/UJ7b8gYa2Es"]]},"INTERMEDIATE / 3-day v1":{"a":[["<","https://youtu.be/pCGVSBk0bIQ"],["<","https://youtu.be/Xu4DxwKWzl4"],["<","https://youtu.be/w_yuTRQd6HA"],["<","https://youtu.be/r9XtxWSTlcg"],["<","https://youtu.be/Y8E3dHNsSTU"],["<","https://youtu.be/zcO3sgAeLA0"],["<","https://youtu.be/q2Eigaa9dKU"],["<","https://youtu.be/02g7XtSRXug"],["<","https://youtu.be/AWo-q7P-HZ0"],["<","https://youtu.be/S3kYKH32VqI"],["<","https://youtu.be/81umRgyxIAU"],["<","https://youtu.be/Q-5V5T55giY"],["<","https://youtu.be/dI7LVElfMOg"],["<","https://youtu.be/3d86xMhHROA"],["<","https://youtu.be/2TkLMol2bCo"],["<","https://youtu.be/lOgA1UfFbWY"],["<","https://youtu.be/JL1tJTEmxfw"],["<","https://youtu.be/kpzUeELReEA"],["<","https://youtu.be/kNvy2_9Ji2w"],["<","https://youtu.be/nIalczfM8es"],["<","https://youtu.be/1muit9qEctY"],["<","https://youtu.be/8Bb-ak2lB8E"],["<","https://youtu.be/4qE_9h_6Hes"]]},"Incline Dumbbell Curls":{"a":[["Behind Body Cable Curls","https://youtu.be/S2CNDlAY8kY"],["Barbell Curl","https://youtu.be/-ClfZ00zo8c"]]},"Lying Incline Lateral Raise":{"v":"https://youtu.be/upEqeI0F73M","a":[["Dumbbell Lateral Raises","https://youtu.be/zcO3sgAeLA0"],["Cable Lateral Raise","https://youtu.be/1muit9qEctY"],["Lean In Lateral Raise","https://youtu.be/2q4kjTDg-vs"],["Wide Grip Barbell Upright Row (last resort)","https://youtu.be/6BTMVh9AnCw"]]},"Walking Lunges (Quad Focus)":{"v":"https://youtu.be/JB20RuTOaFc","a":[["Heel Elevated Split Squat","https://youtu.be/bJE0-eZLa6E"],["Bulgarian Split Squat (quad focused)","https://youtu.be/r9XtxWSTlcg"],["Reverse Lunges (*knee friendly)","https://youtu.be/AUEGDvCrQJA"],["Weighted Step Ups (*knee friendly)","https://youtu.be/Cjc3AgmdtlA"]]},"Side Plank":{"v":"https://youtu.be/o4LGPtKjbhU","a":[["RKC Plank","https://youtu.be/lOgA1UfFbWY"],["Bird Dog","https://youtu.be/4qE_9h_6Hes"],["Palloff Press","https://youtu.be/WhCH2CwVo4I"],["Dead Bug","https://youtu.be/UJ7b8gYa2Es"]]},"Chest Supported Dumbbell Row (Lat Focus)":{"a":[["Lat Focused Cable Row","https://youtu.be/ZaEnZ47cDTk"],["Barbell Row (lat focused)","https://youtu.be/tS5lKXxtNvE"],["Half-Kneeling Cable Row","https://youtu.be/tTev-zsqR4A"]]},"Flat Dumbbell Press":{"v":"https://youtu.be/g14dhC5KYBM","a":[["Barbell Bench Press","https://youtu.be/pCGVSBk0bIQ"],["Flat Machine Chest Press","https://youtu.be/sO8lFa9CidE"],["Flat Smith Machine Chest Press","https://youtu.be/3Z3C44SXSQE"],["Seated Flat Cable Press","https://youtu.be/hPpNTAEDnxM"],["Neutral Grip Dumbbell Press (*shoulder friendly)","https://youtu.be/N-kUwH1uf9c"]]},"Rear Delt Cable Row":{"a":[["Chest Supported Dumbbell Rear Delt Row","https://youtu.be/6LTUVaKpRCk"],["Rear Delt Cable Fly","https://youtu.be/2Xepcd9FYvE"],["Barbell Row (mid/upper back focused)","https://youtu.be/FTCmwlfZ29A"]]},"Bulgarian Split Squat (Glute Focus)":{"v":"https://youtu.be/r9XtxWSTlcg","a":[["Front Foot Elevated Reverse Lunge","https://youtu.be/JySEdVXPUM8"],["Reverse Lunges (*knee friendly)","https://youtu.be/AUEGDvCrQJA"],["Weighted Step Ups (*knee friendly)","https://youtu.be/Cjc3AgmdtlA"],["Single-Leg Leg Press","https://youtu.be/hdioTTf8qdw"]]},"Barbell Hip Thrust":{"a":[["Smith Machine Hip Thrust","https://youtu.be/srYETmyq3_c"],["(Weighted) Single Leg Hip Thrusts","https://youtu.be/FKD9-qezw08"],["Hyperextensions (glute focused)","https://youtu.be/bsXgCaIIwCg"],["Reverse Hyperextensions (bodyweight)","https://youtu.be/yRvF177yb88"]]},"Lying Leg Curls":{"v":"https://youtu.be/aYy3alWRDmk","a":[["Seated Leg Curls","https://youtu.be/81umRgyxIAU"],["Swiss Ball Leg Curls","https://youtu.be/uRBpd65dbYs"],["Dumbbell Lying Leg Curls","https://youtu.be/Ot1MZipNLOQ"]]},"Banded Hip Abductions":{"a":[["Side Lying Hip Raise","https://youtu.be/ZieZ6pjc4fQ"],["Side Lying Leg Raise","https://youtu.be/ht3Ayrre2HA"]]},"INTERMEDIATE / 4-day v1":{"a":[["<","https://youtu.be/pCGVSBk0bIQ"],["<","https://youtu.be/w_yuTRQd6HA"],["<","https://youtu.be/S3kYKH32VqI"],["<","https://youtu.be/Y8E3dHNsSTU"],["<","https://youtu.be/kNvy2_9Ji2w"],["<","https://youtu.be/3D56VDVkQnM"],["<","https://youtu.be/upEqeI0F73M"],["<","https://youtu.be/02g7XtSRXug"],["<","https://youtu.be/AWo-q7P-HZ0"],["<","https://youtu.be/Xu4DxwKWzl4"],["<","https://youtu.be/nIalczfM8es"],["<","https://youtu.be/JB20RuTOaFc"],["<","https://youtu.be/q2Eigaa9dKU"],["<","https://youtu.be/o4LGPtKjbhU"],["<","https://youtu.be/kpzUeELReEA"],["<","https://youtu.be/I2Unz9FR0sc"],["<","https://youtu.be/g14dhC5KYBM"],["<","https://youtu.be/k9G7BykDD4o"],["<","https://youtu.be/1muit9qEctY"],["<","https://youtu.be/OrGL-ymYREg"],["<","https://youtu.be/3d86xMhHROA"],["<","https://youtu.be/JL1tJTEmxfw"],["<","https://youtu.be/sqadB2rroz0"],["<","https://youtu.be/_vBMijiZoxE"],["<","https://youtu.be/aYy3alWRDmk"],["<","https://youtu.be/CA0ALPgTkxw"],["<","https://youtu.be/2TkLMol2bCo"]]}};
 
+  // Drop two junk keys the PDF parser produced, then add the abs tutorials.
+  delete EXERCISE_INFO['INTERMEDIATE / 3-day v1'];
+  delete EXERCISE_INFO['INTERMEDIATE / 4-day v1'];
+  Object.assign(EXERCISE_INFO, {
+    'Weighted Crunches (Upper Abs)': { v: 'https://youtu.be/O-_TufI1CgY' },
+    'Reverse Crunches (Lower Abs)': { v: 'https://youtu.be/AzS8IpnELbc' },
+    'Hanging Leg Raises (Lower Abs)': { v: 'https://youtu.be/RqpNL4XLUUA' },
+    'Cable Crunches (Upper Abs)': { v: 'https://youtu.be/N9n6a1MkwpU' },
+  });
+
   function normName(s) {
     return String(s || '').toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]/g, '');
   }
@@ -241,6 +251,7 @@
     $$('.view').forEach((v) => v.classList.toggle('is-active', v.id === 'view-' + name));
     if (name === 'history') renderHistory();
     if (name === 'exercises') renderLibrary();
+    if (name === 'extras') renderExtras();
   }
 
   /* ============================================================
@@ -469,13 +480,21 @@
     });
   }
 
-  /* ---------- Drag-and-drop reordering (pointer-based, mobile-friendly) ---------- */
+  /* ---------- Drag-and-drop reordering (pointer-based, mobile-friendly) ----------
+     The dragged card follows the finger (translateY) while we live-reorder it
+     in the DOM as it passes neighbours. layoutTop is re-read after each DOM
+     move so the visual position stays glued to the pointer.                     */
   let drag = null;
   function startDrag(e, box, handle) {
     e.preventDefault();
     const list = $('#exercise-list');
     handle.setPointerCapture(e.pointerId);
-    drag = { box, list, pointerId: e.pointerId, handle };
+    const rect = box.getBoundingClientRect();
+    drag = {
+      box, list, handle, pointerId: e.pointerId,
+      grabOffset: e.clientY - rect.top, // pointer position within the card
+      layoutTop: rect.top,
+    };
     box.classList.add('dragging');
     document.body.classList.add('is-dragging');
     handle.addEventListener('pointermove', onDragMove);
@@ -485,21 +504,30 @@
   function onDragMove(e) {
     if (!drag) return;
     e.preventDefault();
-    const y = e.clientY;
-    const siblings = Array.from(drag.list.children).filter((c) => c !== drag.box);
-    let placed = false;
+    const { box, list } = drag;
+
+    // Read layout without the transform, decide the new slot, move, re-read top.
+    box.style.transform = '';
+    const siblings = Array.from(list.children).filter((c) => c !== box);
+    let ref = null;
     for (const c of siblings) {
       const r = c.getBoundingClientRect();
-      if (y < r.top + r.height / 2) { drag.list.insertBefore(drag.box, c); placed = true; break; }
+      if (e.clientY < r.top + r.height / 2) { ref = c; break; }
     }
-    if (!placed) drag.list.appendChild(drag.box);
+    if (ref) { if (box.nextElementSibling !== ref) list.insertBefore(box, ref); }
+    else if (box !== list.lastElementChild) list.appendChild(box);
+    drag.layoutTop = box.getBoundingClientRect().top;
+
+    // Glue the card to the finger.
+    box.style.transform = `translateY(${(e.clientY - drag.grabOffset) - drag.layoutTop}px)`;
   }
-  function endDrag(e) {
+  function endDrag() {
     if (!drag) return;
     const { box, list, handle } = drag;
     handle.removeEventListener('pointermove', onDragMove);
     handle.removeEventListener('pointerup', endDrag);
     handle.removeEventListener('pointercancel', endDrag);
+    box.style.transform = '';
     box.classList.remove('dragging');
     document.body.classList.remove('is-dragging');
     // Rebuild the exercise order from the DOM.
@@ -722,6 +750,8 @@
     'Standing Weighted Calf Raise': 90, 'Seated Weighted Calf Raise': 90,
     'Standing Face Pulls': 60, 'Banded Push-Ups': 60, 'Banded Hip Abductions': 60,
     'RKC Plank': 60, 'Side Plank': 60, 'Bird Dog': 60,
+    'Weighted Crunches (Upper Abs)': 90, 'Reverse Crunches (Lower Abs)': 90,
+    'Hanging Leg Raises (Lower Abs)': 90, 'Cable Crunches (Upper Abs)': 90,
   };
   function restForExercise(ex) {
     if (ex && typeof ex.rest === 'number') return ex.rest;
@@ -1069,6 +1099,134 @@
       item.appendChild(libBtns);
       list.appendChild(item);
     });
+  }
+
+  /* ============================================================
+     Extras: Abs workouts + Mobility / Prehab guide (from Drive plans)
+     ============================================================ */
+  // [name, muscle, sets, target reps]
+  const ABS_WORKOUTS = [
+    { name: 'Abs · Day 1', exercises: [
+      ['Weighted Crunches (Upper Abs)', 'Core', 3, '8-15'],
+      ['Reverse Crunches (Lower Abs)', 'Core', 3, '8-15'],
+    ]},
+    { name: 'Abs · Day 2', exercises: [
+      ['Hanging Leg Raises (Lower Abs)', 'Core', 3, '8-15'],
+      ['Cable Crunches (Upper Abs)', 'Core', 3, '8-15'],
+    ]},
+  ];
+
+  // [name, duration/target, cue]
+  const MOBILITY_DAILY = [
+    ['Cat Cow', '60 sec', 'Spine. ~7–8 slow cycles, pausing 1s at each end.'],
+    ["World's Greatest Stretch", '30 sec / side', 'Hips, ankles, mid-back. Deep lunge, drop the elbow, then rotate open.'],
+    ['Asian Squat', '30s hold + 30s rock', 'Hips, ankles. Chest up, elbows push knees out, then rock side to side.'],
+    ['Half-Kneeling Thoracic Rotations', '30 sec / side', 'Mid/upper back. Rotate only the upper body, not the hips.'],
+    ['Wall Slides', '60 sec', 'Lower/mid traps. Flatten low back to the wall, slide arms up and down.'],
+  ];
+  const MOBILITY_PREHAB = [
+    ['(Weighted) Prone Arm Circles', '2 × 10–15', 'Light plates. Big circle forward and back, keep arms straight.'],
+    ['Wall Slides', '2 × 10–15', 'Low back flat, press arms up, stay in contact with the wall.'],
+    ['Banded Hip Abductions', '2 × 10–15', 'Band around knees, push out with the glutes. 1 set leaning forward, 1 back.'],
+    ['Dead Hangs', '10–60 sec', 'Overhang grip, relax the whole body.'],
+  ];
+
+  const mobilityDone = new Set(); // in-memory check-off for the current session
+
+  function renderExtras() {
+    // ----- Abs workouts -----
+    const absList = $('#abs-list');
+    absList.innerHTML = '';
+    ABS_WORKOUTS.forEach((w) => {
+      const card = el('div', 'card');
+      const head = el('div', 'exercise-head');
+      const left = el('div', 'exercise-title-wrap');
+      left.appendChild(el('div', 'exercise-title', w.name));
+      left.appendChild(el('div', 'exercise-muscle',
+        w.exercises.map((e) => e[0].replace(/\s*\(.*?\)/, '')).join(' · ')));
+      head.appendChild(left);
+      const start = el('button', 'btn btn-primary', 'Start');
+      start.addEventListener('click', () => startAbs(w));
+      head.appendChild(start);
+      card.appendChild(head);
+
+      const guide = el('div', 'extras-guide');
+      w.exercises.forEach(([name, , sets, reps]) => {
+        const row = el('div', 'guide-row');
+        const g = el('div', 'guide-body');
+        g.appendChild(el('div', 'guide-name', name));
+        g.appendChild(el('div', 'guide-meta', `${sets} × ${reps}`));
+        row.appendChild(g);
+        const info = getExerciseInfo(name);
+        if (info && info.v) {
+          const watch = el('a', 'alt-watch', '▶');
+          watch.href = info.v; watch.target = '_blank'; watch.rel = 'noopener'; watch.title = 'Watch';
+          row.appendChild(watch);
+        }
+        guide.appendChild(row);
+      });
+      card.appendChild(guide);
+      absList.appendChild(card);
+    });
+
+    // ----- Mobility guides -----
+    renderMobility($('#mobility-daily'), MOBILITY_DAILY);
+    renderMobility($('#mobility-prehab'), MOBILITY_PREHAB);
+  }
+
+  function renderMobility(container, items) {
+    container.innerHTML = '';
+    const card = el('div', 'card');
+    items.forEach(([name, meta, cue]) => {
+      const key = name + meta;
+      const row = el('div', 'mobility-row');
+      if (mobilityDone.has(key)) row.classList.add('is-done');
+
+      const check = el('button', 'mobility-check', mobilityDone.has(key) ? '✓' : '');
+      check.addEventListener('click', () => {
+        if (mobilityDone.has(key)) mobilityDone.delete(key); else mobilityDone.add(key);
+        renderMobility(container, items);
+      });
+      row.appendChild(check);
+
+      const body = el('div', 'mobility-body');
+      const top = el('div', 'mobility-top');
+      top.appendChild(el('div', 'guide-name', name));
+      top.appendChild(el('div', 'mobility-meta', meta));
+      body.appendChild(top);
+      body.appendChild(el('div', 'mobility-cue', cue));
+      row.appendChild(body);
+
+      card.appendChild(row);
+    });
+    container.appendChild(card);
+  }
+
+  function startAbs(absWorkout) {
+    active = {
+      id: uid(),
+      name: absWorkout.name,
+      startedAt: Date.now(),
+      exercises: absWorkout.exercises.map(([name, muscle, count, rep]) => {
+        const def = findOrCreateExercise(name, muscle);
+        const prev = lastPerformance(def.id);
+        return {
+          exId: def.id, name: def.name, muscle: def.muscle,
+          sets: Array.from({ length: count }, (_, i) => {
+            const prevSet = prev && prev.sets[i];
+            return {
+              weight: '', reps: '', done: false,
+              prevW: prevSet ? prevSet.weight : '',
+              prevR: prevSet ? prevSet.reps : rep,
+            };
+          }),
+        };
+      }),
+    };
+    save(KEYS.exercises, exercises);
+    persistActive();
+    renderWorkout();
+    switchView('workout');
   }
 
   /* ============================================================
