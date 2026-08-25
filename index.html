@@ -86,6 +86,13 @@
           </div>
         </div>
         <div id="exercise-library"></div>
+
+        <div class="section-label">Backup</div>
+        <p class="muted extras-intro">Your data lives only in this browser. Export it to keep a copy, or import to restore.</p>
+        <div class="row">
+          <button id="export-data" class="btn btn-ghost" style="flex:1">Export</button>
+          <button id="import-data" class="btn btn-ghost" style="flex:1">Import</button>
+        </div>
       </section>
 
       <!-- ============ EXTRAS VIEW (warm-up + abs + mobility) ============ -->
@@ -138,6 +145,61 @@
       </div>
       <input id="picker-search" class="input" placeholder="Search exercises…" autocomplete="off" />
       <div id="picker-list" class="picker-list"></div>
+    </div>
+  </div>
+
+  <!-- ============ PLATE / WARM-UP CALCULATOR ============ -->
+  <div id="calc-modal" class="modal hidden">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="calc-title">Plates &amp; warm-up</h2>
+        <button class="modal-x" data-close>✕</button>
+      </div>
+      <div class="row calc-inputs">
+        <label class="calc-field">
+          <span>Target</span>
+          <input id="calc-target" class="input" type="number" min="0" step="2.5" inputmode="decimal" />
+        </label>
+        <label class="calc-field">
+          <span>Bar</span>
+          <input id="calc-bar" class="input" type="number" min="0" step="2.5" inputmode="decimal" />
+        </label>
+      </div>
+      <div class="sub-label">Load per side</div>
+      <div id="calc-plates" class="calc-plates"></div>
+      <div class="sub-label">Warm-up sets (from target)</div>
+      <div id="calc-warmup"></div>
+    </div>
+  </div>
+
+  <!-- ============ PROGRESS MODAL ============ -->
+  <div id="progress-modal" class="modal hidden">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="progress-title">Progress</h2>
+        <button class="modal-x" data-close>✕</button>
+      </div>
+      <div id="progress-prs" class="progress-prs"></div>
+      <div id="progress-chart"></div>
+      <div id="progress-empty" class="picker-empty hidden">No logged sessions yet for this exercise.</div>
+    </div>
+  </div>
+
+  <!-- ============ DATA (backup) MODAL ============ -->
+  <div id="data-modal" class="modal hidden">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="data-title">Backup</h2>
+        <button class="modal-x" data-close>✕</button>
+      </div>
+      <p id="data-hint" class="muted extras-intro"></p>
+      <textarea id="data-text" class="input data-text" spellcheck="false" autocomplete="off"></textarea>
+      <div class="dialog-actions">
+        <button id="data-action" class="btn btn-primary btn-block"></button>
+      </div>
     </div>
   </div>
 

@@ -52,36 +52,38 @@
   /* ---------- Starter routines (from the user's Drive plans) ----------
      Each exercise: [name, muscle group, number of sets, target reps].
      Target reps are shown as placeholders/hints, not logged values.        */
+  // Each exercise: [name, muscle, sets, target reps, supersetGroup?]. Exercises
+  // sharing a superset letter (and adjacent) are performed as a superset.
   const STARTER_ROUTINES = [
     { name: '3-Day A · Full Body', exercises: [
       ['Barbell Bench Press', 'Chest', 3, '8-10'],
       ['Dumbbell Romanian Deadlift', 'Legs', 3, '8-10'],
       ['(Weighted) Pull-Ups', 'Back', 3, '6-12'],
       ['Bulgarian Split Squat (Quad Focus)', 'Legs', 3, '8-10/leg'],
-      ['Seated Mid-Chest Cable Fly', 'Chest', 3, '10-15'],
-      ['Dumbbell Lateral Raise', 'Shoulders', 3, '15-20'],
-      ['Standing Weighted Calf Raise', 'Legs', 3, '10-15'],
-      ['Standing Face Pulls', 'Shoulders', 3, '10'],
+      ['Seated Mid-Chest Cable Fly', 'Chest', 3, '10-15', 'A'],
+      ['Dumbbell Lateral Raise', 'Shoulders', 3, '15-20', 'A'],
+      ['Standing Weighted Calf Raise', 'Legs', 3, '10-15', 'B'],
+      ['Standing Face Pulls', 'Shoulders', 3, '10', 'B'],
     ]},
     { name: '3-Day B · Full Body', exercises: [
       ['Barbell Back Squat', 'Legs', 3, '8-10'],
       ['Standing Barbell Overhead Press', 'Shoulders', 3, '6-8'],
       ['Seated Leg Curls', 'Legs', 3, '10-15'],
-      ['Seated Cable Row (Mid/Upper Back)', 'Back', 3, '10-12'],
-      ['Banded Push-Ups', 'Chest', 3, '10+'],
+      ['Seated Cable Row (Mid/Upper Back)', 'Back', 3, '10-12', 'A'],
+      ['Banded Push-Ups', 'Chest', 3, '10+', 'A'],
       ['Incline Dumbbell Overhead Extensions', 'Triceps', 3, '10-15'],
-      ['Seated Weighted Calf Raise', 'Legs', 3, '10-15'],
-      ['RKC Plank', 'Core', 3, '30-60s'],
+      ['Seated Weighted Calf Raise', 'Legs', 3, '10-15', 'B'],
+      ['RKC Plank', 'Core', 3, '30-60s', 'B'],
     ]},
     { name: '3-Day C · Full Body', exercises: [
       ['Barbell Deadlift', 'Legs', 3, '6-8'],
-      ['Low Incline Dumbbell Press', 'Chest', 3, '10-12'],
-      ['Dumbbell Chest Supported Row (Mid/Upper Back)', 'Back', 3, '10-12'],
+      ['Low Incline Dumbbell Press', 'Chest', 3, '10-12', 'A'],
+      ['Dumbbell Chest Supported Row (Mid/Upper Back)', 'Back', 3, '10-12', 'A'],
       ['Seated Leg Extensions', 'Legs', 3, '10-15'],
       ['Cable Lateral Raise', 'Shoulders', 3, '15-20'],
       ['Standing Cable Curl', 'Biceps', 3, '10-15'],
-      ['Standing Face Pulls', 'Shoulders', 2, '10'],
-      ['Bird Dog', 'Core', 2, '5/side'],
+      ['Standing Face Pulls', 'Shoulders', 2, '10', 'B'],
+      ['Bird Dog', 'Core', 2, '5/side', 'B'],
     ]},
     { name: '4-Day · Upper 1', exercises: [
       ['Barbell Bench Press', 'Chest', 3, '8-10'],
@@ -89,14 +91,14 @@
       ['Standing Barbell Overhead Press', 'Shoulders', 3, '6-8'],
       ['Seated Mid-Chest Cable Fly', 'Chest', 3, '10-15'],
       ['Dumbbell Chest Supported Row (Mid/Upper Back)', 'Back', 3, '10-12'],
-      ['Incline Dumbbell Curls', 'Biceps', 3, '8-10'],
-      ['Lying Incline Lateral Raise', 'Shoulders', 3, '15-20'],
+      ['Incline Dumbbell Curls', 'Biceps', 3, '8-10', 'A'],
+      ['Lying Incline Lateral Raise', 'Shoulders', 3, '15-20', 'A'],
       ['Standing Face Pulls', 'Shoulders', 2, '10'],
     ]},
     { name: '4-Day · Lower 1 (Quads)', exercises: [
       ['Barbell Back Squat', 'Legs', 3, '8-10'],
-      ['Dumbbell Romanian Deadlift', 'Legs', 3, '8-10'],
-      ['Seated Leg Extensions', 'Legs', 3, '10-15'],
+      ['Dumbbell Romanian Deadlift', 'Legs', 3, '8-10', 'A'],
+      ['Seated Leg Extensions', 'Legs', 3, '10-15', 'A'],
       ['Walking Lunges (Quad Focus)', 'Legs', 3, '8-10/leg'],
       ['Standing Weighted Calf Raise', 'Legs', 3, '10-15'],
       ['Side Plank', 'Core', 2, '30s/side'],
@@ -107,8 +109,8 @@
       ['Flat Dumbbell Press', 'Chest', 3, '8-10'],
       ['Rear Delt Cable Row', 'Shoulders', 3, '12-15'],
       ['Cable Lateral Raise', 'Shoulders', 3, '15-20'],
-      ['Hammer Curls', 'Biceps', 3, '8-10'],
-      ['Incline Dumbbell Overhead Extensions', 'Triceps', 3, '10-15'],
+      ['Hammer Curls', 'Biceps', 3, '8-10', 'A'],
+      ['Incline Dumbbell Overhead Extensions', 'Triceps', 3, '10-15', 'A'],
       ['Standing Face Pulls', 'Shoulders', 2, '10'],
     ]},
     { name: '4-Day · Lower 2 (Glutes)', exercises: [
@@ -116,8 +118,8 @@
       ['Bulgarian Split Squat (Glute Focus)', 'Glutes', 3, '8-10/leg'],
       ['Barbell Hip Thrust', 'Glutes', 3, '10-15'],
       ['Lying Leg Curls', 'Legs', 3, '10-15'],
-      ['Banded Hip Abductions', 'Glutes', 3, '12'],
-      ['Seated Weighted Calf Raise', 'Legs', 3, '8-10'],
+      ['Banded Hip Abductions', 'Glutes', 3, '12', 'A'],
+      ['Seated Weighted Calf Raise', 'Legs', 3, '8-10', 'A'],
     ]},
   ];
 
@@ -156,14 +158,15 @@
 
   // Seed the Drive plans once. Skips any routine whose name already exists.
   function seedStarterRoutines() {
-    if (localStorage.getItem('wt.seeded.plans') === '1') return;
+    if (localStorage.getItem('wt.seeded.plans') === '1') { migrateSupersets(); return; }
     let added = 0;
     STARTER_ROUTINES.forEach((r) => {
       if (templates.some((t) => t.name.toLowerCase() === r.name.toLowerCase())) return;
-      const exs = r.exercises.map(([name, muscle, count, rep]) => {
+      const exs = r.exercises.map(([name, muscle, count, rep, ss]) => {
         const def = findOrCreateExercise(name, muscle);
         return {
           exId: def.id, name: def.name, muscle: def.muscle,
+          ...(ss ? { ss } : {}),
           sets: Array.from({ length: count }, () => ({ weight: '', reps: rep })),
         };
       });
@@ -172,9 +175,26 @@
     });
     if (added) { save(KEYS.exercises, exercises); save(KEYS.templates, templates); }
     localStorage.setItem('wt.seeded.plans', '1');
+    localStorage.setItem('wt.migrate.ss', '1'); // freshly seeded already carries supersets
+  }
+
+  // Backfill superset groups onto routines seeded before supersets existed.
+  function migrateSupersets() {
+    if (localStorage.getItem('wt.migrate.ss') === '1') return;
+    let changed = false;
+    STARTER_ROUTINES.forEach((r) => {
+      const tpl = templates.find((t) => t.name.toLowerCase() === r.name.toLowerCase());
+      if (!tpl) return;
+      r.exercises.forEach(([name, , , , ss], i) => {
+        const tEx = tpl.exercises[i];
+        if (ss && tEx && tEx.name === name && tEx.ss == null) { tEx.ss = ss; changed = true; }
+      });
+    });
+    if (changed) save(KEYS.templates, templates);
+    localStorage.setItem('wt.migrate.ss', '1');
   }
   const settings = Object.assign(
-    { restDefault: 90, autostart: true, sound: true },
+    { restDefault: 90, autostart: true, sound: true, barWeight: 20 },
     load(KEYS.settings, {})
   );
 
@@ -370,6 +390,7 @@
           name: tEx.name,
           muscle: tEx.muscle || '',
           ...(typeof tEx.rest === 'number' ? { rest: tEx.rest } : {}),
+          ...(tEx.ss ? { ss: tEx.ss } : {}),
           sets: tEx.sets.map((tSet, i) => {
             const prevSet = prev && prev.sets[i];
             return {
@@ -401,6 +422,7 @@
       name: ex.name,
       muscle: ex.muscle,
       ...(typeof ex.rest === 'number' ? { rest: ex.rest } : {}),
+      ...(ex.ss ? { ss: ex.ss } : {}),
       // Store the set structure with whatever targets are entered (or last-known).
       sets: ex.sets.map((s) => ({
         weight: s.weight !== '' ? s.weight : (s.prevW ?? ''),
@@ -453,6 +475,7 @@
       endedAt: Date.now(),
       exercises: cleaned,
     };
+    const prs = detectPRs(finished, workouts); // compare against history before this one
     workouts.unshift(finished);
     save(KEYS.workouts, workouts);
     active = null;
@@ -460,6 +483,11 @@
     stopRest();
     renderWorkout();
     switchView('history');
+    if (prs.length) {
+      if (settings.sound) beep();
+      const names = prs.map((p) => p.name).join(', ');
+      toast(`🎉 New PR${prs.length > 1 ? 's' : ''}: ${names}`);
+    }
   }
 
   function persistActive() { save(KEYS.active, active); }
@@ -510,9 +538,26 @@
   function renderExercises() {
     const list = $('#exercise-list');
     list.innerHTML = '';
-    active.exercises.forEach((ex, exIdx) => {
-      list.appendChild(renderExerciseBlock(ex, exIdx));
-    });
+    const exs = active.exercises;
+    let i = 0, letter = 0;
+    while (i < exs.length) {
+      const ss = exs[i].ss;
+      // A superset is a run of 2+ adjacent exercises sharing the same group id.
+      let j = i;
+      if (ss) { while (j < exs.length && exs[j].ss === ss) j++; }
+      const runLen = ss ? j - i : 1;
+
+      if (runLen >= 2) {
+        const wrap = el('div', 'superset');
+        wrap.appendChild(el('div', 'superset-label', `Superset ${String.fromCharCode(65 + letter++)}`));
+        for (let k = i; k < j; k++) wrap.appendChild(renderExerciseBlock(exs[k], k));
+        list.appendChild(wrap);
+        i = j;
+      } else {
+        list.appendChild(renderExerciseBlock(exs[i], i));
+        i++;
+      }
+    }
   }
 
   /* ---------- Reordering via up/down buttons ---------- */
@@ -549,6 +594,10 @@
     head.appendChild(titleWrap);
 
     const headBtns = el('div', 'exercise-head-btns');
+    const calc = el('button', 'exercise-menu', '🧮');
+    calc.title = 'Plates & warm-up';
+    calc.addEventListener('click', () => openCalc(ex));
+    headBtns.appendChild(calc);
     if (getExerciseInfo(ex.originName || ex.name)) {
       const info = el('button', 'exercise-menu', 'ⓘ');
       info.title = 'Tutorial & alternatives';
@@ -597,6 +646,27 @@
     if (typeof ex.rest !== 'number') restChip.classList.add('is-default');
     restChip.addEventListener('click', () => openExerciseRest(exIdx));
     actions.appendChild(restChip);
+
+    // Superset link toggle (with the exercise above)
+    const prevEx = active.exercises[exIdx - 1];
+    const groupedWithPrev = exIdx > 0 && ex.ss && prevEx.ss === ex.ss;
+    if (exIdx > 0) {
+      const link = el('button', 'link-chip', groupedWithPrev ? '⛓ Unlink' : '⛓ Superset');
+      if (groupedWithPrev) link.classList.add('is-linked');
+      link.title = groupedWithPrev ? 'Remove from superset' : 'Superset with the exercise above';
+      link.addEventListener('click', () => {
+        if (groupedWithPrev) {
+          ex.ss = null;
+        } else {
+          const id = prevEx.ss || ('g' + uid());
+          prevEx.ss = id;
+          ex.ss = id;
+        }
+        persistActive();
+        renderExercises();
+      });
+      actions.appendChild(link);
+    }
 
     box.appendChild(actions);
 
@@ -895,6 +965,278 @@
   });
 
   /* ============================================================
+     Plate & warm-up calculator
+     ============================================================ */
+  const calcModal = $('#calc-modal');
+  const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25]; // kg, per side
+  const round2p5 = (w) => Math.round(w / 2.5) * 2.5;
+
+  function topWeightForExercise(ex) {
+    // Heaviest entered weight, else the last-performance placeholder, else blank.
+    let best = 0;
+    ex.sets.forEach((s) => {
+      const w = num(s.weight) || num(s.prevW);
+      if (w > best) best = w;
+    });
+    return best;
+  }
+
+  function openCalc(ex) {
+    $('#calc-title').textContent = ex.name;
+    $('#calc-bar').value = settings.barWeight;
+    const top = topWeightForExercise(ex);
+    $('#calc-target').value = top || '';
+    renderCalc();
+    calcModal.classList.remove('hidden');
+  }
+  function renderCalc() {
+    const target = num($('#calc-target').value);
+    const bar = num($('#calc-bar').value);
+    settings.barWeight = bar; save(KEYS.settings, settings);
+
+    // Plates per side
+    const platesBox = $('#calc-plates');
+    platesBox.innerHTML = '';
+    const perSide = (target - bar) / 2;
+    if (!target) {
+      platesBox.appendChild(el('div', 'muted', 'Enter a target weight.'));
+    } else if (perSide < 0) {
+      platesBox.appendChild(el('div', 'muted', 'Target is below the bar weight.'));
+    } else if (perSide === 0) {
+      platesBox.appendChild(el('div', 'muted', 'Just the bar — no plates.'));
+    } else {
+      let remaining = perSide;
+      const used = [];
+      PLATES.forEach((p) => {
+        let n = Math.floor(remaining / p + 1e-9);
+        if (n > 0) { used.push([p, n]); remaining -= n * p; }
+      });
+      used.forEach(([p, n]) => {
+        const chip = el('div', 'plate-chip');
+        chip.appendChild(el('span', 'plate-w', p + ''));
+        chip.appendChild(el('span', 'plate-n', '×' + n));
+        platesBox.appendChild(chip);
+      });
+      if (remaining > 0.01) {
+        platesBox.appendChild(el('div', 'muted plate-rem', `+${remaining.toFixed(2)} kg unaccounted`));
+      }
+    }
+
+    // Warm-up sets from target working weight
+    const warm = $('#calc-warmup');
+    warm.innerHTML = '';
+    const card = el('div', 'calc-warm');
+    [['50%', 0.5, '8'], ['70%', 0.7, '3–4'], ['90%', 0.9, '1–2']].forEach(([pct, f, reps]) => {
+      const w = target ? round2p5(target * f) : 0;
+      const row = el('div', 'guide-row warmup-set-row');
+      row.appendChild(el('div', 'warmup-set-num', pct));
+      const g = el('div', 'guide-body');
+      g.appendChild(el('div', 'guide-name', target ? `${w} kg` : '—'));
+      g.appendChild(el('div', 'guide-meta', `${reps} reps`));
+      row.appendChild(g);
+      card.appendChild(row);
+    });
+    warm.appendChild(card);
+  }
+  $('#calc-target').addEventListener('input', renderCalc);
+  $('#calc-bar').addEventListener('input', renderCalc);
+
+  /* ============================================================
+     Personal records + progress chart
+     ============================================================ */
+  const est1RM = (w, r) => w * (1 + (r || 0) / 30); // Epley
+
+  // Chronological sessions (oldest→newest) for one exercise: best set per day.
+  function exerciseHistory(exId) {
+    const out = [];
+    workouts.forEach((w) => {
+      const found = w.exercises.find((e) => e.exId === exId);
+      if (!found) return;
+      let topW = 0, top1rm = 0, reps = 0;
+      found.sets.forEach((s) => {
+        const wt = num(s.weight), rp = num(s.reps);
+        if (wt > topW) { topW = wt; reps = rp; }
+        const e = est1RM(wt, rp);
+        if (e > top1rm) top1rm = e;
+      });
+      if (topW > 0) out.push({ date: w.startedAt, weight: topW, reps, e1rm: top1rm });
+    });
+    return out.sort((a, b) => a.date - b.date);
+  }
+  function bestForExercise(exId) {
+    const h = exerciseHistory(exId);
+    let weight = 0, e1rm = 0;
+    h.forEach((p) => { if (p.weight > weight) weight = p.weight; if (p.e1rm > e1rm) e1rm = p.e1rm; });
+    return { weight, e1rm };
+  }
+
+  // Detect PRs a finished workout set, comparing to history BEFORE it was added.
+  function detectPRs(finished, priorWorkouts) {
+    const prs = [];
+    const savedWorkouts = workouts;
+    workouts = priorWorkouts; // temporarily look at history excluding this session
+    finished.exercises.forEach((ex) => {
+      const prior = bestForExercise(ex.exId);
+      let topW = 0, top1rm = 0;
+      ex.sets.forEach((s) => {
+        const wt = num(s.weight), rp = num(s.reps);
+        if (wt > topW) topW = wt;
+        const e = est1RM(wt, rp);
+        if (e > top1rm) top1rm = e;
+      });
+      if (topW > 0 && topW > prior.weight) prs.push({ name: ex.name, type: 'weight', value: topW });
+      else if (top1rm > 0 && top1rm > prior.e1rm + 0.01) prs.push({ name: ex.name, type: 'e1rm', value: top1rm });
+    });
+    workouts = savedWorkouts;
+    return prs;
+  }
+
+  const progressModal = $('#progress-modal');
+  function openProgress(def) {
+    $('#progress-title').textContent = def.name;
+    const h = exerciseHistory(def.id);
+    const best = bestForExercise(def.id);
+
+    const prs = $('#progress-prs');
+    prs.innerHTML = '';
+    $('#progress-empty').classList.toggle('hidden', h.length > 0);
+    $('#progress-chart').innerHTML = '';
+
+    if (h.length) {
+      prs.appendChild(prTile('Best weight', best.weight ? best.weight + ' kg' : '—'));
+      prs.appendChild(prTile('Est. 1RM', best.e1rm ? Math.round(best.e1rm) + ' kg' : '—'));
+      prs.appendChild(prTile('Sessions', String(h.length)));
+      $('#progress-chart').appendChild(lineChart(h));
+    }
+    progressModal.classList.remove('hidden');
+  }
+  function prTile(label, value) {
+    const t = el('div', 'pr-tile');
+    t.appendChild(el('div', 'pr-value', value));
+    t.appendChild(el('div', 'pr-label', label));
+    return t;
+  }
+
+  // Minimal single-series line chart (weight of the top set over sessions).
+  function lineChart(points) {
+    const W = 300, H = 150, padL = 34, padR = 10, padT = 12, padB = 22;
+    const xs = points.map((_, i) => i);
+    const ys = points.map((p) => p.weight);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    const spanY = (maxY - minY) || 1;
+    const nx = (i) => padL + (xs.length <= 1 ? 0 : (i / (xs.length - 1)) * (W - padL - padR));
+    const ny = (v) => padT + (1 - (v - minY) / spanY) * (H - padT - padB);
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('class', 'progress-svg');
+    const mk = (tag, attrs) => { const n = document.createElementNS(svgNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+
+    // Y gridlines + labels (min, mid, max)
+    [minY, minY + spanY / 2, maxY].forEach((v) => {
+      const y = ny(v);
+      svg.appendChild(mk('line', { x1: padL, y1: y, x2: W - padR, y2: y, class: 'chart-grid' }));
+      const t = mk('text', { x: padL - 6, y: y + 3, class: 'chart-axis', 'text-anchor': 'end' });
+      t.textContent = Math.round(v);
+      svg.appendChild(t);
+    });
+
+    // Area + line
+    const d = points.map((p, i) => `${i ? 'L' : 'M'}${nx(i).toFixed(1)} ${ny(p.weight).toFixed(1)}`).join(' ');
+    if (points.length > 1) {
+      const area = `${d} L${nx(points.length - 1).toFixed(1)} ${ny(minY).toFixed(1)} L${nx(0).toFixed(1)} ${ny(minY).toFixed(1)} Z`;
+      svg.appendChild(mk('path', { d: area, class: 'chart-area' }));
+      svg.appendChild(mk('path', { d, class: 'chart-line' }));
+    }
+    // Dots; emphasize the last one
+    points.forEach((p, i) => {
+      svg.appendChild(mk('circle', { cx: nx(i), cy: ny(p.weight), r: i === points.length - 1 ? 4 : 2.5,
+        class: i === points.length - 1 ? 'chart-dot-last' : 'chart-dot' }));
+    });
+    // Endpoint value label
+    const last = points[points.length - 1];
+    const lbl = mk('text', { x: nx(points.length - 1), y: ny(last.weight) - 8, class: 'chart-endlabel', 'text-anchor': 'end' });
+    lbl.textContent = last.weight + ' kg';
+    svg.appendChild(lbl);
+
+    // First/last date labels
+    const d0 = mk('text', { x: padL, y: H - 6, class: 'chart-axis', 'text-anchor': 'start' });
+    d0.textContent = shortDate(points[0].date);
+    svg.appendChild(d0);
+    if (points.length > 1) {
+      const d1 = mk('text', { x: W - padR, y: H - 6, class: 'chart-axis', 'text-anchor': 'end' });
+      d1.textContent = shortDate(last.date);
+      svg.appendChild(d1);
+    }
+    return svg;
+  }
+  function shortDate(ts) {
+    return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  /* ============================================================
+     Data export / import
+     ============================================================ */
+  const dataModal = $('#data-modal');
+  const DATA_KEYS = [KEYS.exercises, KEYS.workouts, KEYS.templates, KEYS.settings];
+  let dataMode = 'export';
+
+  $('#export-data').addEventListener('click', () => {
+    dataMode = 'export';
+    $('#data-title').textContent = 'Export data';
+    $('#data-hint').textContent = 'Select all and copy this text somewhere safe. Paste it back via Import to restore.';
+    const bundle = { app: 'workout-tracker', version: 1, exportedAt: Date.now(), data: {} };
+    DATA_KEYS.forEach((k) => { bundle.data[k] = load(k, null); });
+    const ta = $('#data-text');
+    ta.value = JSON.stringify(bundle);
+    ta.readOnly = true;
+    $('#data-action').textContent = 'Copy';
+    dataModal.classList.remove('hidden');
+    setTimeout(() => { ta.focus(); ta.select(); }, 50);
+  });
+  $('#import-data').addEventListener('click', () => {
+    dataMode = 'import';
+    $('#data-title').textContent = 'Import data';
+    $('#data-hint').textContent = 'Paste a previously exported backup here, then Import. This replaces your current data.';
+    const ta = $('#data-text');
+    ta.value = '';
+    ta.readOnly = false;
+    $('#data-action').textContent = 'Import & replace';
+    dataModal.classList.remove('hidden');
+    setTimeout(() => ta.focus(), 50);
+  });
+  $('#data-action').addEventListener('click', async () => {
+    const ta = $('#data-text');
+    if (dataMode === 'export') {
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      if (!ok && navigator.clipboard) { try { await navigator.clipboard.writeText(ta.value); ok = true; } catch (e) {} }
+      toast(ok ? 'Copied to clipboard.' : 'Select the text and copy manually.');
+      return;
+    }
+    // import
+    let bundle;
+    try { bundle = JSON.parse(ta.value); } catch (e) { toast('That isn’t valid backup text.'); return; }
+    if (!bundle || !bundle.data) { toast('That isn’t a workout backup.'); return; }
+    if (!(await uiConfirm('Replace all current data with this backup?', 'Replace'))) return;
+    DATA_KEYS.forEach((k) => {
+      if (bundle.data[k] != null) save(k, bundle.data[k]);
+    });
+    // Reload in-memory state
+    exercises = load(KEYS.exercises, exercises);
+    workouts = load(KEYS.workouts, []);
+    templates = load(KEYS.templates, []);
+    Object.assign(settings, load(KEYS.settings, {}));
+    active = load(KEYS.active, null);
+    dataModal.classList.add('hidden');
+    renderWorkout();
+    switchView('history');
+    toast('Backup restored.');
+  });
+
+  /* ============================================================
      Exercise info modal (tutorial video + alternatives)
      ============================================================ */
   const infoModal = $('#info-modal');
@@ -972,6 +1314,9 @@
       restSettingsModal.classList.add('hidden');
       infoModal.classList.add('hidden');
       exRestModal.classList.add('hidden');
+      calcModal.classList.add('hidden');
+      progressModal.classList.add('hidden');
+      dataModal.classList.add('hidden');
     });
   });
 
@@ -1074,6 +1419,10 @@
       item.appendChild(left);
 
       const libBtns = el('div', 'exercise-head-btns');
+      const prog = el('button', 'lib-del', '📈');
+      prog.title = 'Progress & PRs';
+      prog.addEventListener('click', () => openProgress(def));
+      libBtns.appendChild(prog);
       if (getExerciseInfo(def.name)) {
         const info = el('button', 'lib-del', 'ⓘ');
         info.title = 'Tutorial & alternatives';
