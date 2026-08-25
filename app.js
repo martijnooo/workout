@@ -290,6 +290,10 @@
   $('#discard-workout').addEventListener('click', discardWorkout);
   $('#add-exercise').addEventListener('click', openPicker);
   $('#save-routine').addEventListener('click', saveAsRoutine);
+  $('#warmup-upper-btn').addEventListener('click', () => setWarmup('upper'));
+  $('#warmup-lower-btn').addEventListener('click', () => setWarmup('lower'));
+  $('#abs-d1-btn').addEventListener('click', () => addAbsDay(0));
+  $('#abs-d2-btn').addEventListener('click', () => addAbsDay(1));
   $('#workout-name').addEventListener('input', (e) => {
     if (active) { active.name = e.target.value; persistActive(); }
   });
@@ -536,8 +540,78 @@
     activeBox.classList.remove('hidden');
     $('#workout-name').value = active.name || '';
     $('#session-date').textContent = formatDate(active.startedAt);
+    renderWarmup();
     renderExercises();
     tickSessionTimer();
+  }
+
+  /* ---------- Quick-add: warm-up checklist + abs ---------- */
+  function setWarmup(type) {
+    if (!active) return;
+    if (active.warmup && active.warmup.type === type) { active.warmup = null; } // toggle off
+    else { active.warmup = { type, done: {} }; }
+    persistActive();
+    renderWarmup();
+  }
+  function renderWarmup() {
+    const box = $('#warmup-block');
+    box.innerHTML = '';
+    const up = $('#warmup-upper-btn'), lo = $('#warmup-lower-btn');
+    up.classList.toggle('is-on', !!(active && active.warmup && active.warmup.type === 'upper'));
+    lo.classList.toggle('is-on', !!(active && active.warmup && active.warmup.type === 'lower'));
+    if (!active || !active.warmup) return;
+
+    const items = active.warmup.type === 'upper' ? WARMUP_UPPER : WARMUP_LOWER;
+    const card = el('div', 'card warmup-card');
+    const head = el('div', 'exercise-head');
+    const t = el('div', 'exercise-title-wrap');
+    t.appendChild(el('div', 'exercise-title', `Warm-up · ${active.warmup.type === 'upper' ? 'Upper' : 'Lower'}`));
+    head.appendChild(t);
+    const x = el('button', 'exercise-menu', '✕');
+    x.title = 'Remove warm-up';
+    x.addEventListener('click', () => { active.warmup = null; persistActive(); renderWarmup(); });
+    head.appendChild(x);
+    card.appendChild(head);
+
+    items.forEach(([name, meta], i) => {
+      const row = el('div', 'mobility-row');
+      if (active.warmup.done[i]) row.classList.add('is-done');
+      const check = el('button', 'mobility-check', active.warmup.done[i] ? '✓' : '');
+      check.addEventListener('click', () => {
+        active.warmup.done[i] = !active.warmup.done[i];
+        persistActive();
+        renderWarmup();
+      });
+      row.appendChild(check);
+      const body = el('div', 'mobility-body');
+      const top = el('div', 'mobility-top');
+      top.appendChild(el('div', 'guide-name', name));
+      top.appendChild(el('div', 'mobility-meta', meta));
+      body.appendChild(top);
+      row.appendChild(body);
+      card.appendChild(row);
+    });
+    box.appendChild(card);
+  }
+
+  function addAbsDay(idx) {
+    if (!active) return;
+    const day = ABS_WORKOUTS[idx];
+    day.exercises.forEach(([name, muscle, count, rep]) => {
+      const def = findOrCreateExercise(name, muscle);
+      const prev = lastPerformance(def.id);
+      active.exercises.push({
+        exId: def.id, name: def.name, muscle: def.muscle,
+        sets: Array.from({ length: count }, (_, i) => {
+          const ps = prev && prev.sets[i];
+          return { weight: '', reps: '', done: false, prevW: ps ? ps.weight : '', prevR: ps ? ps.reps : rep };
+        }),
+      });
+    });
+    save(KEYS.exercises, exercises);
+    persistActive();
+    renderExercises();
+    toast(`Added ${day.name}.`);
   }
 
   function renderExercises() {

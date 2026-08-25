@@ -374,6 +374,20 @@ main { padding: 16px; }
 .archived-header:hover { color: var(--text); }
 .save-routine-btn { margin-top: 10px; }
 
+/* ---------- Quick-add (warm-up / abs) ---------- */
+.quick-add { display: flex; gap: 8px; margin-bottom: 12px; }
+.quick-btn {
+  flex: 1; background: var(--surface); border: 1px dashed var(--border);
+  color: var(--muted); border-radius: var(--radius-sm); padding: 11px 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: color .15s, border-color .15s;
+}
+.quick-btn:hover { color: var(--text); border-color: var(--primary); }
+.quick-btn.is-on { color: var(--primary); border-color: var(--primary); border-style: solid; background: rgba(79,124,255,.06); }
+.warmup-card { border-left: 3px solid var(--primary); }
+.abs-quickadd { margin-top: 6px; }
+.abs-quickadd .section-label { margin: 8px 0 8px; }
+
 /* ---------- Extras (warm-up + abs + mobility) ---------- */
 .extras-intro { font-size: 13px; line-height: 1.5; margin: -6px 0 12px; }
 .sub-label { font-size: 12px; font-weight: 700; color: var(--text); margin: 14px 0 8px; }
