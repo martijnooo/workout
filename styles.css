@@ -219,8 +219,23 @@ main { padding: 16px; }
 .chart-dot-last { fill: var(--primary); stroke: var(--surface); stroke-width: 2; }
 .chart-endlabel { fill: var(--text); font-size: 11px; font-weight: 700; font-family: inherit; }
 
-/* ---------- Data backup ---------- */
+/* ---------- Data backup + Drive sync ---------- */
 .data-text { width: 100%; min-height: 160px; resize: vertical; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.4; margin-bottom: 14px; }
+.sync-card { padding: 12px 14px; }
+.sync-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.sync-status { font-size: 13px; color: var(--muted); font-weight: 600; }
+.sync-status.ok { color: var(--success); }
+.sync-status.warn { color: var(--danger); }
+.sync-status.muted { color: var(--muted); }
+
+/* ---------- Exercise thumbnail ---------- */
+.ex-thumb-link { position: relative; display: block; margin-bottom: 10px; border-radius: var(--radius-sm); overflow: hidden; line-height: 0; }
+.ex-thumb { width: 100%; height: auto; display: block; background: var(--surface-2); }
+.ex-thumb-play {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 34px; text-shadow: 0 2px 12px rgba(0,0,0,.6);
+  background: rgba(0,0,0,.15);
+}
 
 /* ---------- Confirm / prompt dialog ---------- */
 .dialog-card { max-width: 420px; }

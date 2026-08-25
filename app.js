@@ -146,6 +146,10 @@
   function getExerciseInfo(name) {
     return EXERCISE_INFO[name] || EXINFO_INDEX[normName(name)] || null;
   }
+  function ytId(url) {
+    const m = String(url || '').match(/(?:youtu\.be\/|v=)([\w-]{6,})/);
+    return m ? m[1] : null;
+  }
 
   function findOrCreateExercise(name, muscle) {
     let def = exercises.find((e) => e.name.toLowerCase() === name.toLowerCase());
@@ -488,6 +492,7 @@
       const names = prs.map((p) => p.name).join(', ');
       toast(`🎉 New PR${prs.length > 1 ? 's' : ''}: ${names}`);
     }
+    driveSave('finish'); // auto-backup to Google Drive (no-op if unavailable)
   }
 
   function persistActive() { save(KEYS.active, active); }
@@ -968,7 +973,7 @@
      Plate & warm-up calculator
      ============================================================ */
   const calcModal = $('#calc-modal');
-  const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25]; // kg, per side
+  const PLATES = [20, 15, 10, 5, 2.5, 1.25]; // kg, per side (20 kg is the biggest plate)
   const round2p5 = (w) => Math.round(w / 2.5) * 2.5;
 
   function topWeightForExercise(ex) {
@@ -1182,14 +1187,30 @@
   const DATA_KEYS = [KEYS.exercises, KEYS.workouts, KEYS.templates, KEYS.settings];
   let dataMode = 'export';
 
+  function buildBundle() {
+    const bundle = { app: 'workout-tracker', version: 1, savedAt: Date.now(), data: {} };
+    DATA_KEYS.forEach((k) => { bundle.data[k] = load(k, null); });
+    return bundle;
+  }
+  // Write a bundle's data into storage + in-memory state. Returns true if applied.
+  function applyBundle(bundle) {
+    if (!bundle || !bundle.data) return false;
+    DATA_KEYS.forEach((k) => { if (bundle.data[k] != null) save(k, bundle.data[k]); });
+    exercises = load(KEYS.exercises, exercises);
+    workouts = load(KEYS.workouts, []);
+    templates = load(KEYS.templates, []);
+    Object.assign(settings, load(KEYS.settings, {}));
+    active = load(KEYS.active, null);
+    if (bundle.savedAt) localStorage.setItem('wt.savedAt', String(bundle.savedAt));
+    return true;
+  }
+
   $('#export-data').addEventListener('click', () => {
     dataMode = 'export';
     $('#data-title').textContent = 'Export data';
     $('#data-hint').textContent = 'Select all and copy this text somewhere safe. Paste it back via Import to restore.';
-    const bundle = { app: 'workout-tracker', version: 1, exportedAt: Date.now(), data: {} };
-    DATA_KEYS.forEach((k) => { bundle.data[k] = load(k, null); });
     const ta = $('#data-text');
-    ta.value = JSON.stringify(bundle);
+    ta.value = JSON.stringify(buildBundle());
     ta.readOnly = true;
     $('#data-action').textContent = 'Copy';
     dataModal.classList.remove('hidden');
@@ -1221,20 +1242,119 @@
     try { bundle = JSON.parse(ta.value); } catch (e) { toast('That isn’t valid backup text.'); return; }
     if (!bundle || !bundle.data) { toast('That isn’t a workout backup.'); return; }
     if (!(await uiConfirm('Replace all current data with this backup?', 'Replace'))) return;
-    DATA_KEYS.forEach((k) => {
-      if (bundle.data[k] != null) save(k, bundle.data[k]);
-    });
-    // Reload in-memory state
-    exercises = load(KEYS.exercises, exercises);
-    workouts = load(KEYS.workouts, []);
-    templates = load(KEYS.templates, []);
-    Object.assign(settings, load(KEYS.settings, {}));
-    active = load(KEYS.active, null);
+    applyBundle(bundle);
     dataModal.classList.add('hidden');
     renderWorkout();
     switchView('history');
     toast('Backup restored.');
   });
+
+  /* ============================================================
+     Google Drive auto-sync (via the mcp capability)
+     ============================================================ */
+  const DRIVE = {
+    server: 'Google Drive',
+    title: 'Workout Tracker Data.json',
+    parentId: '1sCC280C6z9Zm2ukCHQj_lYXkPj7JPa9l', // the user's "Fitness" folder
+  };
+  let mcpReady = null;   // Promise<namespace|null>, resolved once
+  let driveState = 'init';
+
+  function setSyncStatus(text, cls) {
+    const el0 = $('#sync-status');
+    if (!el0) return;
+    el0.textContent = text;
+    el0.className = 'sync-status' + (cls ? ' ' + cls : '');
+  }
+  function b64ToText(b64) {
+    return decodeURIComponent(Array.prototype.map.call(atob(b64),
+      (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+  }
+  const localSavedAt = () => parseInt(localStorage.getItem('wt.savedAt') || '0', 10);
+
+  async function getMcp() {
+    if (mcpReady) return mcpReady;
+    mcpReady = (window.claude && window.claude.use)
+      ? window.claude.use('mcp').catch(() => null)
+      : Promise.resolve(null);
+    return mcpReady;
+  }
+
+  function driveErrorText(code) {
+    if (code === 'server_not_connected' || code === 'selection_required')
+      return 'Add Google Drive in claude.ai → Settings → Connectors';
+    if (code === 'needs_reauth') return 'Reconnect Google Drive in claude.ai → Settings';
+    if (code === 'not_granted' || code === 'capability_disabled') return 'Drive sync not available in this view';
+    return 'Drive sync error — tap Sync now to retry';
+  }
+
+  async function driveFindFileId(mcp) {
+    const stored = localStorage.getItem('wt.driveFileId');
+    if (stored) return stored;
+    const res = await mcp.callTool(DRIVE.server, 'search_files',
+      { query: `title = '${DRIVE.title}'`, pageSize: 5, excludeContentSnippets: true });
+    const files = (res.payload && res.payload.files) || [];
+    if (!files.length) return null;
+    files.sort((a, b) => (b.modifiedTime || '').localeCompare(a.modifiedTime || ''));
+    localStorage.setItem('wt.driveFileId', files[0].id);
+    return files[0].id;
+  }
+
+  // Push current data to Drive (new file + trash the old one).
+  async function driveSave(reason) {
+    const mcp = await getMcp();
+    if (!mcp) { setSyncStatus('Drive sync unavailable', 'muted'); return false; }
+    try {
+      setSyncStatus('Saving…');
+      const bundle = buildBundle();
+      const res = await mcp.callTool(DRIVE.server, 'create_file', {
+        title: DRIVE.title, parentId: DRIVE.parentId,
+        textContent: JSON.stringify(bundle), contentMimeType: 'application/json',
+        disableConversionToGoogleType: true,
+      });
+      const newId = res.payload && res.payload.id;
+      const prevId = localStorage.getItem('wt.driveFileId');
+      if (newId) localStorage.setItem('wt.driveFileId', newId);
+      localStorage.setItem('wt.savedAt', String(bundle.savedAt));
+      if (prevId && prevId !== newId) {
+        mcp.callTool(DRIVE.server, 'trash_file', { fileId: prevId }).catch(() => {});
+      }
+      setSyncStatus('Synced just now', 'ok');
+      return true;
+    } catch (e) {
+      setSyncStatus(driveErrorText(e && e.code), 'warn');
+      return false;
+    }
+  }
+
+  // On startup: pull from Drive if it's newer than local; otherwise push local up.
+  async function driveSyncOnLoad() {
+    const mcp = await getMcp();
+    if (!mcp) { setSyncStatus('Drive sync unavailable here', 'muted'); return; }
+    try {
+      setSyncStatus('Checking Google Drive…');
+      const fileId = await driveFindFileId(mcp);
+      if (!fileId) { await driveSave('seed'); return; }
+      const res = await mcp.callTool(DRIVE.server, 'download_file_content', { fileId });
+      let bundle = null;
+      try { bundle = JSON.parse(b64ToText(res.payload.content)); } catch (e) {}
+      const remoteAt = (bundle && bundle.savedAt) || 0;
+      if (bundle && remoteAt > localSavedAt()) {
+        applyBundle(bundle);
+        renderWorkout();
+        if ($('#view-history').classList.contains('is-active')) renderHistory();
+        setSyncStatus('Synced from Drive', 'ok');
+        toast('Synced from Google Drive.');
+      } else {
+        // Local is newer or equal — make sure Drive reflects it.
+        await driveSave('push');
+      }
+    } catch (e) {
+      setSyncStatus(driveErrorText(e && e.code), 'warn');
+    }
+  }
+
+  $('#sync-now').addEventListener('click', () => driveSave('manual'));
 
   /* ============================================================
      Exercise info modal (tutorial video + alternatives)
@@ -1250,10 +1370,25 @@
     if (!info) return;
     $('#info-title').textContent = ex.name;
 
-    // Tutorial video link (of the origin exercise)
+    // Tutorial thumbnail + video link (of the origin exercise)
     const vidWrap = $('#info-video');
     vidWrap.innerHTML = '';
     if (info.v) {
+      const id = ytId(info.v);
+      if (id) {
+        const thumbLink = el('a', 'ex-thumb-link');
+        thumbLink.href = info.v; thumbLink.target = '_blank'; thumbLink.rel = 'noopener';
+        const img = document.createElement('img');
+        img.className = 'ex-thumb';
+        img.loading = 'lazy';
+        img.alt = ex.name;
+        img.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+        img.addEventListener('error', () => { thumbLink.style.display = 'none'; });
+        const play = el('div', 'ex-thumb-play', '▶');
+        thumbLink.appendChild(img);
+        thumbLink.appendChild(play);
+        vidWrap.appendChild(thumbLink);
+      }
       const a = el('a', 'btn btn-primary btn-block', '▶  Watch tutorial');
       a.href = YT(info.v); a.target = '_blank'; a.rel = 'noopener';
       vidWrap.appendChild(a);
@@ -1630,6 +1765,7 @@
      ============================================================ */
   seedStarterRoutines();
   renderWorkout();
+  driveSyncOnLoad(); // pull newer data from Google Drive if present
 
   // Register service worker for offline use (optional; ignored if unsupported).
   if ('serviceWorker' in navigator) {

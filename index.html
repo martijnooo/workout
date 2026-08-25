@@ -87,8 +87,17 @@
         </div>
         <div id="exercise-library"></div>
 
-        <div class="section-label">Backup</div>
-        <p class="muted extras-intro">Your data lives only in this browser. Export it to keep a copy, or import to restore.</p>
+        <div class="section-label">Google Drive sync</div>
+        <p class="muted extras-intro">Auto-saves a backup to your Google Drive when you finish a workout, and syncs it across your devices.</p>
+        <div class="card sync-card">
+          <div class="sync-row">
+            <span id="sync-status" class="sync-status">Checking…</span>
+            <button id="sync-now" class="btn btn-ghost">Sync now</button>
+          </div>
+        </div>
+
+        <div class="section-label">Manual backup</div>
+        <p class="muted extras-intro">Export a copy as text, or import one to restore.</p>
         <div class="row">
           <button id="export-data" class="btn btn-ghost" style="flex:1">Export</button>
           <button id="import-data" class="btn btn-ghost" style="flex:1">Import</button>
