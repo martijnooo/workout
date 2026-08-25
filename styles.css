@@ -289,9 +289,19 @@ main { padding: 16px; }
 .routine-body { flex: 1; min-width: 0; }
 .routine-name { font-weight: 700; font-size: 16px; }
 .routine-sub { color: var(--muted); font-size: 13px; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.routine-go { flex-shrink: 0; color: var(--primary); font-weight: 700; font-size: 14px; }
-.routine-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 6px; flex-shrink: 0; }
-.routine-del:hover { color: var(--danger); }
+.routine-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.routine-go { flex-shrink: 0; color: var(--primary); font-weight: 700; font-size: 14px; padding-left: 4px; }
+.routine-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 6px; flex-shrink: 0; line-height: 1; }
+.routine-del:hover { color: var(--text); }
+.routine-card.is-archived { opacity: .62; }
+.routine-card.is-archived .routine-name { text-decoration: none; }
+.archived-header {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  background: none; border: none; color: var(--muted);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  padding: 12px 4px 8px; margin-top: 4px;
+}
+.archived-header:hover { color: var(--text); }
 .save-routine-btn { margin-top: 10px; }
 
 /* ---------- Extras (warm-up + abs + mobility) ---------- */

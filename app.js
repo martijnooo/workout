@@ -288,38 +288,73 @@
   }
 
   /* ---------- Routines / templates ---------- */
+  let showArchived = false;
+
   function renderRoutines() {
     const list = $('#routine-list');
     list.innerHTML = '';
-    $('#routine-empty').classList.toggle('hidden', templates.length > 0);
+    const activeTpls = templates.filter((t) => !t.archived);
+    const archivedTpls = templates.filter((t) => t.archived);
+    $('#routine-empty').classList.toggle('hidden', activeTpls.length > 0);
 
-    templates.forEach((tpl) => {
-      const card = el('div', 'routine-card');
+    activeTpls.forEach((tpl) => list.appendChild(routineCard(tpl, false)));
 
-      const body = el('div', 'routine-body');
-      body.appendChild(el('div', 'routine-name', tpl.name));
-      const names = tpl.exercises.map((e) => e.name).join(', ');
-      const setCount = tpl.exercises.reduce((n, e) => n + e.sets.length, 0);
-      body.appendChild(el('div', 'routine-sub',
-        `${tpl.exercises.length} exercises · ${setCount} sets — ${names}`));
-      card.appendChild(body);
+    if (archivedTpls.length) {
+      const header = el('button', 'archived-header');
+      header.innerHTML = `<span>Archived · ${archivedTpls.length}</span><span>${showArchived ? '▾' : '▸'}</span>`;
+      header.addEventListener('click', () => { showArchived = !showArchived; renderRoutines(); });
+      list.appendChild(header);
+      if (showArchived) {
+        archivedTpls.forEach((tpl) => list.appendChild(routineCard(tpl, true)));
+      }
+    }
+  }
 
-      card.appendChild(el('div', 'routine-go', 'Start ›'));
+  function routineCard(tpl, isArchived) {
+    const card = el('div', 'routine-card' + (isArchived ? ' is-archived' : ''));
 
-      const del = el('button', 'routine-del', '🗑');
-      del.title = 'Delete routine';
-      del.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (!(await uiConfirm(`Delete the "${tpl.name}" routine? Your logged workouts are not affected.`, 'Delete'))) return;
-        templates = templates.filter((t) => t.id !== tpl.id);
-        save(KEYS.templates, templates);
-        renderRoutines();
-      });
-      card.appendChild(del);
+    const body = el('div', 'routine-body');
+    body.appendChild(el('div', 'routine-name', tpl.name));
+    const names = tpl.exercises.map((e) => e.name).join(', ');
+    const setCount = tpl.exercises.reduce((n, e) => n + e.sets.length, 0);
+    body.appendChild(el('div', 'routine-sub',
+      `${tpl.exercises.length} exercises · ${setCount} sets — ${names}`));
+    card.appendChild(body);
 
-      card.addEventListener('click', () => startFromTemplate(tpl));
-      list.appendChild(card);
+    const actions = el('div', 'routine-actions');
+
+    // Archive / unarchive
+    const arch = el('button', 'routine-del', isArchived ? '↩︎' : '📥');
+    arch.title = isArchived ? 'Unarchive' : 'Archive';
+    arch.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tpl.archived = !isArchived;
+      save(KEYS.templates, templates);
+      if (!tpl.archived) showArchived = true;
+      renderRoutines();
+      toast(isArchived ? `"${tpl.name}" restored.` : `"${tpl.name}" archived.`);
     });
+    actions.appendChild(arch);
+
+    // Delete
+    const del = el('button', 'routine-del', '🗑');
+    del.title = 'Delete routine';
+    del.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!(await uiConfirm(`Delete the "${tpl.name}" routine? Your logged workouts are not affected.`, 'Delete'))) return;
+      templates = templates.filter((t) => t.id !== tpl.id);
+      save(KEYS.templates, templates);
+      renderRoutines();
+    });
+    actions.appendChild(del);
+
+    // Start (archived routines can still be started)
+    const go = el('div', 'routine-go', 'Start ›');
+    actions.appendChild(go);
+
+    card.appendChild(actions);
+    card.addEventListener('click', () => startFromTemplate(tpl));
+    return card;
   }
 
   function startFromTemplate(tpl) {
