@@ -212,6 +212,40 @@
     return n;
   }
 
+  /* ---------- Line-icon set (single consistent style) ---------- */
+  const ICON_PATHS = {
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+    x: '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>',
+    trash: '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/>',
+    archive: '<rect x="4" y="4" width="16" height="4" rx="1"/><path d="M5 8v11a1 1 0 001 1h12a1 1 0 001-1V8"/><path d="M10 12h4"/>',
+    restore: '<path d="M12 20V9"/><path d="M8 13l4-4 4 4"/><path d="M5 5h14"/>',
+    calculator: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01"/>',
+    chart: '<path d="M4 5v14h16"/><path d="M7 15l3-4 3 2 4-6"/>',
+    link: '<path d="M9.5 14.5l5-5"/><path d="M11 6.5l1-1a4 4 0 015.7 5.7l-1 1"/><path d="M13 17.5l-1 1a4 4 0 01-5.7-5.7l1-1"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>',
+    play: '<path d="M8 5l12 7-12 7z" fill="currentColor" stroke="none"/>',
+    chevronUp: '<path d="M6 15l6-6 6 6"/>',
+    chevronDown: '<path d="M6 9l6 6 6-6"/>',
+    chevronRight: '<path d="M9 6l6 6-6 6"/>',
+    check: '<path d="M5 12l4 4 10-10"/>',
+    plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+    dumbbell: '<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>',
+    history: '<path d="M3.5 12a8.5 8.5 0 108.5-8.5A8.5 8.5 0 005 7"/><path d="M4.5 3.5V7H8"/><path d="M12 8v4l3 2"/>',
+    layers: '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+    list: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+  };
+  function icon(name) {
+    return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" ` +
+      `stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;
+  }
+  // Create a button whose content is one icon (optionally followed by a label).
+  function iconBtn(cls, name, title, label) {
+    const b = el('button', cls);
+    b.innerHTML = icon(name) + (label ? `<span>${label}</span>` : '');
+    if (title) b.title = title;
+    return b;
+  }
+
   /* ============================================================
      In-app dialogs (native confirm/prompt/alert are blocked in the
      sandboxed artifact iframe, so we roll our own).
@@ -329,7 +363,7 @@
 
     if (archivedTpls.length) {
       const header = el('button', 'archived-header');
-      header.innerHTML = `<span>Archived · ${archivedTpls.length}</span><span>${showArchived ? '▾' : '▸'}</span>`;
+      header.innerHTML = `<span>Archived · ${archivedTpls.length}</span>${icon(showArchived ? 'chevronUp' : 'chevronDown')}`;
       header.addEventListener('click', () => { showArchived = !showArchived; renderRoutines(); });
       list.appendChild(header);
       if (showArchived) {
@@ -352,8 +386,7 @@
     const actions = el('div', 'routine-actions');
 
     // Archive / unarchive
-    const arch = el('button', 'routine-del', isArchived ? '↩︎' : '📥');
-    arch.title = isArchived ? 'Unarchive' : 'Archive';
+    const arch = iconBtn('routine-del', isArchived ? 'restore' : 'archive', isArchived ? 'Unarchive' : 'Archive');
     arch.addEventListener('click', (e) => {
       e.stopPropagation();
       tpl.archived = !isArchived;
@@ -365,8 +398,7 @@
     actions.appendChild(arch);
 
     // Delete
-    const del = el('button', 'routine-del', '🗑');
-    del.title = 'Delete routine';
+    const del = iconBtn('routine-del', 'trash', 'Delete routine');
     del.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!(await uiConfirm(`Delete the "${tpl.name}" routine? Your logged workouts are not affected.`, 'Delete'))) return;
@@ -377,7 +409,8 @@
     actions.appendChild(del);
 
     // Start (archived routines can still be started)
-    const go = el('div', 'routine-go', 'Start ›');
+    const go = el('div', 'routine-go');
+    go.innerHTML = `<span>Start</span>${icon('chevronRight')}`;
     actions.appendChild(go);
 
     card.appendChild(actions);
@@ -494,7 +527,7 @@
     if (prs.length) {
       if (settings.sound) beep();
       const names = prs.map((p) => p.name).join(', ');
-      toast(`🎉 New PR${prs.length > 1 ? 's' : ''}: ${names}`);
+      toast(`New PR${prs.length > 1 ? 's' : ''} — ${names}`);
     }
     driveSave('finish'); // auto-backup to Google Drive (no-op if unavailable)
   }
@@ -567,8 +600,7 @@
     const t = el('div', 'exercise-title-wrap');
     t.appendChild(el('div', 'exercise-title', `Warm-up · ${active.warmup.type === 'upper' ? 'Upper' : 'Lower'}`));
     head.appendChild(t);
-    const x = el('button', 'exercise-menu', '✕');
-    x.title = 'Remove warm-up';
+    const x = iconBtn('exercise-menu', 'x', 'Remove warm-up');
     x.addEventListener('click', () => { active.warmup = null; persistActive(); renderWarmup(); });
     head.appendChild(x);
     card.appendChild(head);
@@ -576,7 +608,8 @@
     items.forEach(([name, meta], i) => {
       const row = el('div', 'mobility-row');
       if (active.warmup.done[i]) row.classList.add('is-done');
-      const check = el('button', 'mobility-check', active.warmup.done[i] ? '✓' : '');
+      const check = el('button', 'mobility-check');
+      if (active.warmup.done[i]) check.innerHTML = icon('check');
       check.addEventListener('click', () => {
         active.warmup.done[i] = !active.warmup.done[i];
         persistActive();
@@ -655,12 +688,10 @@
     const head = el('div', 'exercise-head');
 
     const reorder = el('div', 'reorder-btns');
-    const up = el('button', 'reorder-btn', '↑');
-    up.title = 'Move up';
+    const up = iconBtn('reorder-btn', 'chevronUp', 'Move up');
     up.disabled = exIdx === 0;
     up.addEventListener('click', () => moveExercise(exIdx, -1));
-    const down = el('button', 'reorder-btn', '↓');
-    down.title = 'Move down';
+    const down = iconBtn('reorder-btn', 'chevronDown', 'Move down');
     down.disabled = exIdx === active.exercises.length - 1;
     down.addEventListener('click', () => moveExercise(exIdx, 1));
     reorder.appendChild(up);
@@ -673,18 +704,15 @@
     head.appendChild(titleWrap);
 
     const headBtns = el('div', 'exercise-head-btns');
-    const calc = el('button', 'exercise-menu', '🧮');
-    calc.title = 'Plates & warm-up';
+    const calc = iconBtn('exercise-menu', 'calculator', 'Plates & warm-up');
     calc.addEventListener('click', () => openCalc(ex));
     headBtns.appendChild(calc);
     if (getExerciseInfo(ex.originName || ex.name)) {
-      const info = el('button', 'exercise-menu', 'ⓘ');
-      info.title = 'Tutorial & alternatives';
+      const info = iconBtn('exercise-menu', 'info', 'Tutorial & alternatives');
       info.addEventListener('click', () => openInfo(ex, exIdx));
       headBtns.appendChild(info);
     }
-    const menu = el('button', 'exercise-menu', '✕');
-    menu.title = 'Remove exercise';
+    const menu = iconBtn('exercise-menu', 'x', 'Remove exercise');
     menu.addEventListener('click', () => {
       active.exercises.splice(exIdx, 1);
       persistActive();
@@ -699,7 +727,9 @@
     header.appendChild(el('div', 'set-num', '#'));
     header.appendChild(el('div', '', 'Weight'));
     header.appendChild(el('div', '', 'Reps'));
-    header.appendChild(el('div', '', '✓'));
+    const doneHead = el('div', 'set-done-head');
+    doneHead.innerHTML = icon('check');
+    header.appendChild(doneHead);
     table.appendChild(header);
 
     ex.sets.forEach((set, setIdx) => {
@@ -708,7 +738,8 @@
     box.appendChild(table);
 
     const actions = el('div', 'exercise-actions');
-    const addSet = el('button', 'add-set-btn', '+ Add set');
+    const addSet = el('button', 'add-set-btn');
+    addSet.innerHTML = icon('plus') + '<span>Add set</span>';
     addSet.addEventListener('click', () => {
       const last = ex.sets[ex.sets.length - 1];
       ex.sets.push({
@@ -720,7 +751,8 @@
     });
     actions.appendChild(addSet);
 
-    const restChip = el('button', 'rest-chip', `⏱ ${fmtClock(restForExercise(ex))}`);
+    const restChip = el('button', 'rest-chip');
+    restChip.innerHTML = icon('clock') + `<span>${fmtClock(restForExercise(ex))}</span>`;
     restChip.title = 'Rest for this exercise';
     if (typeof ex.rest !== 'number') restChip.classList.add('is-default');
     restChip.addEventListener('click', () => openExerciseRest(exIdx));
@@ -730,7 +762,8 @@
     const prevEx = active.exercises[exIdx - 1];
     const groupedWithPrev = exIdx > 0 && ex.ss && prevEx.ss === ex.ss;
     if (exIdx > 0) {
-      const link = el('button', 'link-chip', groupedWithPrev ? '⛓ Unlink' : '⛓ Superset');
+      const link = el('button', 'link-chip');
+      link.innerHTML = icon('link') + `<span>${groupedWithPrev ? 'Unlink' : 'Superset'}</span>`;
       if (groupedWithPrev) link.classList.add('is-linked');
       link.title = groupedWithPrev ? 'Remove from superset' : 'Superset with the exercise above';
       link.addEventListener('click', () => {
@@ -774,7 +807,8 @@
     rInput.addEventListener('input', () => { set.reps = rInput.value; persistActive(); });
     row.appendChild(rInput);
 
-    const doneBtn = el('button', 'set-done', set.done ? '✓' : '');
+    const doneBtn = el('button', 'set-done');
+    doneBtn.innerHTML = icon('check');
     doneBtn.addEventListener('click', () => {
       set.done = !set.done;
       // Auto-fill from previous performance if left blank when checking off.
@@ -1458,12 +1492,14 @@
         img.alt = ex.name;
         img.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
         img.addEventListener('error', () => { thumbLink.style.display = 'none'; });
-        const play = el('div', 'ex-thumb-play', '▶');
+        const play = el('div', 'ex-thumb-play');
+        play.innerHTML = icon('play');
         thumbLink.appendChild(img);
         thumbLink.appendChild(play);
         vidWrap.appendChild(thumbLink);
       }
-      const a = el('a', 'btn btn-primary btn-block', '▶  Watch tutorial');
+      const a = el('a', 'btn btn-primary btn-block');
+      a.innerHTML = icon('play') + '<span>Watch tutorial</span>';
       a.href = YT(info.v); a.target = '_blank'; a.rel = 'noopener';
       vidWrap.appendChild(a);
     }
@@ -1483,7 +1519,8 @@
       row.appendChild(left);
 
       if (url) {
-        const watch = el('a', 'alt-watch', '▶');
+        const watch = el('a', 'alt-watch');
+        watch.innerHTML = icon('play');
         watch.title = 'Watch'; watch.href = YT(url); watch.target = '_blank'; watch.rel = 'noopener';
         row.appendChild(watch);
       }
@@ -1548,8 +1585,7 @@
       left.appendChild(el('div', 'exercise-title', w.name));
       left.appendChild(el('div', 'history-date', formatDate(w.startedAt)));
       head.appendChild(left);
-      const del = el('button', 'exercise-menu', '🗑');
-      del.title = 'Delete workout';
+      const del = iconBtn('exercise-menu', 'trash', 'Delete workout');
       del.addEventListener('click', async (e) => {
         e.stopPropagation();
         if (!(await uiConfirm('Delete this workout?', 'Delete'))) return;
@@ -1628,17 +1664,15 @@
       item.appendChild(left);
 
       const libBtns = el('div', 'exercise-head-btns');
-      const prog = el('button', 'lib-del', '📈');
-      prog.title = 'Progress & PRs';
+      const prog = iconBtn('lib-del', 'chart', 'Progress & PRs');
       prog.addEventListener('click', () => openProgress(def));
       libBtns.appendChild(prog);
       if (getExerciseInfo(def.name)) {
-        const info = el('button', 'lib-del', 'ⓘ');
-        info.title = 'Tutorial & alternatives';
+        const info = iconBtn('lib-del', 'info', 'Tutorial & alternatives');
         info.addEventListener('click', () => openInfo(def, null));
         libBtns.appendChild(info);
       }
-      const del = el('button', 'lib-del', '🗑');
+      const del = iconBtn('lib-del', 'trash', 'Delete exercise');
       del.addEventListener('click', async () => {
         if (!(await uiConfirm(`Delete "${def.name}" from your exercise list? Past workouts keep their data.`, 'Delete'))) return;
         exercises = exercises.filter((e) => e.id !== def.id);
@@ -1749,7 +1783,8 @@
         row.appendChild(g);
         const info = getExerciseInfo(name);
         if (info && info.v) {
-          const watch = el('a', 'alt-watch', '▶');
+          const watch = el('a', 'alt-watch');
+          watch.innerHTML = icon('play');
           watch.href = info.v; watch.target = '_blank'; watch.rel = 'noopener'; watch.title = 'Watch';
           row.appendChild(watch);
         }
@@ -1772,7 +1807,8 @@
       const row = el('div', 'mobility-row');
       if (mobilityDone.has(key)) row.classList.add('is-done');
 
-      const check = el('button', 'mobility-check', mobilityDone.has(key) ? '✓' : '');
+      const check = el('button', 'mobility-check');
+      if (mobilityDone.has(key)) check.innerHTML = icon('check');
       check.addEventListener('click', () => {
         if (mobilityDone.has(key)) mobilityDone.delete(key); else mobilityDone.add(key);
         renderMobility(container, items);
@@ -1837,6 +1873,12 @@
   /* ============================================================
      Boot
      ============================================================ */
+  // Inject icons into static markup (modal close buttons + [data-icon] buttons).
+  $$('.modal-x').forEach((b) => { b.innerHTML = icon('x'); });
+  $$('[data-icon]').forEach((b) => {
+    b.insertAdjacentHTML('afterbegin', icon(b.dataset.icon));
+  });
+
   seedStarterRoutines();
   renderWorkout();
   driveSyncOnLoad(); // pull newer data from Google Drive if present

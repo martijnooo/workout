@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f1115" />
+  <meta name="theme-color" content="#0b0d12" />
   <title>Workout Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="manifest" href="manifest.webmanifest" />
 </head>
@@ -12,13 +15,10 @@
   <div id="app">
     <!-- ============ HEADER ============ -->
     <header class="topbar">
-      <h1 class="brand">💪 Workout</h1>
-      <nav class="tabs">
-        <button class="tab-btn is-active" data-view="workout">Workout</button>
-        <button class="tab-btn" data-view="history">History</button>
-        <button class="tab-btn" data-view="extras">Extras</button>
-        <button class="tab-btn" data-view="exercises">Exercises</button>
-      </nav>
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>
+        <span>Workout</span>
+      </div>
     </header>
 
     <main>
@@ -50,20 +50,20 @@
           </div>
 
           <div class="quick-add">
-            <button id="warmup-upper-btn" class="quick-btn">＋ Warm-up · Upper</button>
-            <button id="warmup-lower-btn" class="quick-btn">＋ Warm-up · Lower</button>
+            <button id="warmup-upper-btn" class="quick-btn" data-icon="plus">Warm-up · Upper</button>
+            <button id="warmup-lower-btn" class="quick-btn" data-icon="plus">Warm-up · Lower</button>
           </div>
           <div id="warmup-block"></div>
 
           <div id="exercise-list"></div>
 
-          <button id="add-exercise" class="btn btn-dashed btn-block">+ Add exercise</button>
+          <button id="add-exercise" class="btn btn-dashed btn-block" data-icon="plus">Add exercise</button>
 
           <div class="abs-quickadd">
             <div class="section-label">Add abs</div>
             <div class="quick-add">
-              <button id="abs-d1-btn" class="quick-btn">＋ Abs Day 1</button>
-              <button id="abs-d2-btn" class="quick-btn">＋ Abs Day 2</button>
+              <button id="abs-d1-btn" class="quick-btn" data-icon="plus">Abs Day 1</button>
+              <button id="abs-d2-btn" class="quick-btn" data-icon="plus">Abs Day 2</button>
             </div>
           </div>
 
@@ -157,6 +157,26 @@
       </div>
       <div class="rest-bar"><div id="rest-bar-fill" class="rest-bar-fill"></div></div>
     </div>
+
+    <!-- ============ BOTTOM TAB BAR ============ -->
+    <nav class="tabbar">
+      <button class="tab-btn is-active" data-view="workout">
+        <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>
+        <span>Workout</span>
+      </button>
+      <button class="tab-btn" data-view="history">
+        <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 108.5-8.5A8.5 8.5 0 005 7"/><path d="M4.5 3.5V7H8"/><path d="M12 8v4l3 2"/></svg>
+        <span>History</span>
+      </button>
+      <button class="tab-btn" data-view="extras">
+        <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+        <span>Extras</span>
+      </button>
+      <button class="tab-btn" data-view="exercises">
+        <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>
+        <span>Exercises</span>
+      </button>
+    </nav>
   </div>
 
   <!-- ============ EXERCISE PICKER MODAL ============ -->
