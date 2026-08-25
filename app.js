@@ -439,6 +439,7 @@
               // Prefill placeholder from last actual performance, else the routine's target.
               prevW: prevSet ? prevSet.weight : tSet.weight,
               prevR: prevSet ? prevSet.reps : tSet.reps,
+              targetR: tSet.reps, // the plan's rep target, kept for 1RM-based suggestions
             };
           }),
         };
@@ -538,7 +539,7 @@
   function addExerciseToWorkout(def) {
     const prev = lastPerformance(def.id);
     const sets = prev
-      ? prev.sets.map((s) => ({ weight: '', reps: '', done: false, prevW: s.weight, prevR: s.reps }))
+      ? prev.sets.map((s) => ({ weight: '', reps: '', done: false, prevW: s.weight, prevR: s.reps, targetR: s.reps }))
       : [{ weight: '', reps: '', done: false }];
     active.exercises.push({
       exId: def.id,
@@ -637,7 +638,7 @@
         exId: def.id, name: def.name, muscle: def.muscle,
         sets: Array.from({ length: count }, (_, i) => {
           const ps = prev && prev.sets[i];
-          return { weight: '', reps: '', done: false, prevW: ps ? ps.weight : '', prevR: ps ? ps.reps : rep };
+          return { weight: '', reps: '', done: false, prevW: ps ? ps.weight : '', prevR: ps ? ps.reps : rep, targetR: rep };
         }),
       });
     });
@@ -701,6 +702,15 @@
     const titleWrap = el('div', 'exercise-title-wrap');
     titleWrap.appendChild(el('div', 'exercise-title', ex.name));
     if (ex.muscle) titleWrap.appendChild(el('div', 'exercise-muscle', ex.muscle));
+    // Continuous 1RM estimate + suggested working weight (from your history).
+    const tReps = targetRepsOf(ex);
+    const sug = suggestWeight(ex.exId, tReps);
+    if (sug) {
+      const line = el('div', 'exercise-suggest');
+      line.title = 'Suggested from your recent estimated 1RM';
+      line.innerHTML = `<b>${sug.weight} kg</b> · est 1RM ${Math.round(sug.e1rm)} kg`;
+      titleWrap.appendChild(line);
+    }
     head.appendChild(titleWrap);
 
     const headBtns = el('div', 'exercise-head-btns');
@@ -745,6 +755,7 @@
       ex.sets.push({
         weight: '', reps: '', done: false,
         prevW: last ? (last.prevW ?? '') : '', prevR: last ? (last.prevR ?? '') : '',
+        targetR: last ? last.targetR : undefined,
       });
       persistActive();
       renderExercises();
@@ -791,18 +802,28 @@
 
     row.appendChild(el('div', 'set-num', String(setIdx + 1)));
 
+    // Suggested working weight from the rolling 1RM estimate (falls back to last time).
+    const setSug = suggestWeight(ex.exId, set.targetR);
+    const suggestW = setSug ? setSug.weight : null;
+
     const wInput = el('input', 'set-input');
     wInput.type = 'number';
     wInput.inputMode = 'decimal';
-    wInput.placeholder = set.prevW != null && set.prevW !== '' ? String(set.prevW) : 'kg';
+    wInput.placeholder = suggestW != null ? String(suggestW)
+      : (set.prevW != null && set.prevW !== '' ? String(set.prevW) : 'kg');
+    if (suggestW != null && !set.done && set.weight === '') wInput.classList.add('is-suggest');
     wInput.value = set.weight;
-    wInput.addEventListener('input', () => { set.weight = wInput.value; persistActive(); });
+    wInput.addEventListener('input', () => {
+      set.weight = wInput.value; wInput.classList.remove('is-suggest'); persistActive();
+    });
     row.appendChild(wInput);
 
     const rInput = el('input', 'set-input');
     rInput.type = 'number';
     rInput.inputMode = 'numeric';
-    rInput.placeholder = set.prevR != null && set.prevR !== '' ? String(set.prevR) : 'reps';
+    const repHint = (set.targetR != null && set.targetR !== '') ? set.targetR
+      : (set.prevR != null && set.prevR !== '' ? set.prevR : 'reps');
+    rInput.placeholder = String(repHint);
     rInput.value = set.reps;
     rInput.addEventListener('input', () => { set.reps = rInput.value; persistActive(); });
     row.appendChild(rInput);
@@ -811,10 +832,18 @@
     doneBtn.innerHTML = icon('check');
     doneBtn.addEventListener('click', () => {
       set.done = !set.done;
-      // Auto-fill from previous performance if left blank when checking off.
+      // Auto-fill blanks when checking off: weight from the suggestion (else last time),
+      // reps from the target (else last time).
       if (set.done) {
-        if (set.weight === '' && set.prevW != null) set.weight = String(set.prevW);
-        if (set.reps === '' && set.prevR != null) set.reps = String(set.prevR);
+        if (set.weight === '') {
+          if (suggestW != null) set.weight = String(suggestW);
+          else if (set.prevW != null) set.weight = String(set.prevW);
+        }
+        if (set.reps === '') {
+          const tr = repFloor(set.targetR);
+          if (tr != null) set.reps = String(tr);
+          else if (set.prevR != null) set.reps = String(set.prevR);
+        }
       }
       persistActive();
       renderExercises();
@@ -1097,7 +1126,9 @@
   function openCalc(ex) {
     $('#calc-title').textContent = ex.name;
     $('#calc-bar').value = settings.barWeight;
-    const top = topWeightForExercise(ex);
+    // Prefer the entered/last weight; otherwise fall back to the 1RM-based suggestion.
+    const sug = suggestWeight(ex.exId, targetRepsOf(ex));
+    const top = topWeightForExercise(ex) || (sug ? sug.weight : 0);
     $('#calc-target').value = top || '';
     renderCalc();
     calcModal.classList.remove('hidden');
@@ -1181,6 +1212,34 @@
     let weight = 0, e1rm = 0;
     h.forEach((p) => { if (p.weight > weight) weight = p.weight; if (p.e1rm > e1rm) e1rm = p.e1rm; });
     return { weight, e1rm };
+  }
+
+  /* ---------- Continuous 1RM estimate + weight suggestions ----------
+     Rolling estimated 1RM from your recent sessions, inverted through Epley
+     to propose a working weight for the target rep range (double-progression:
+     load for the bottom of the range; as your reps/e1RM climb the load does too). */
+  const round2p5w = (w) => Math.round(w / 2.5) * 2.5;
+  function repFloor(s) { const m = String(s == null ? '' : s).match(/\d+/); return m ? parseInt(m[0], 10) : null; }
+
+  // Best estimated 1RM across the last few sessions of this exercise.
+  function currentE1RM(exId) {
+    const h = exerciseHistory(exId);
+    if (!h.length) return 0;
+    return Math.max(...h.slice(-3).map((p) => p.e1rm));
+  }
+  // Suggested working weight for a target rep string (e.g. "8-10"). null if no data.
+  function suggestWeight(exId, targetRepStr) {
+    const e = currentE1RM(exId);
+    if (!e) return null;
+    const reps = repFloor(targetRepStr) || 8;
+    const w = round2p5w(e / (1 + reps / 30));
+    if (!(w > 0)) return null;
+    return { e1rm: e, reps, weight: w };
+  }
+  // The exercise's target rep string (from the plan), for display + suggestions.
+  function targetRepsOf(ex) {
+    const s = ex.sets.find((x) => x.targetR != null && String(x.targetR).match(/\d/));
+    return s ? s.targetR : (ex.sets[0] && ex.sets[0].prevR) || null;
   }
 
   // Detect PRs a finished workout set, comparing to history BEFORE it was added.
@@ -1844,6 +1903,7 @@
               weight: '', reps: '', done: false,
               prevW: prevSet ? prevSet.weight : '',
               prevR: prevSet ? prevSet.reps : rep,
+              targetR: rep,
             };
           }),
         };
