@@ -11,6 +11,7 @@
     active: 'wt.active',
     settings: 'wt.settings',
     templates: 'wt.templates',
+    mobilityLog: 'wt.mobilityLog',
   };
 
   function load(key, fallback) {
@@ -48,6 +49,7 @@
   let workouts = load(KEYS.workouts, []);
   let templates = load(KEYS.templates, []);
   let active = load(KEYS.active, null);
+  let mobilityLog = load(KEYS.mobilityLog, []);
 
   /* ---------- Starter routines (from the user's Drive plans) ----------
      Each exercise: [name, muscle group, number of sets, target reps].
@@ -1351,7 +1353,7 @@
      Data export / import
      ============================================================ */
   const dataModal = $('#data-modal');
-  const DATA_KEYS = [KEYS.exercises, KEYS.workouts, KEYS.templates, KEYS.settings];
+  const DATA_KEYS = [KEYS.exercises, KEYS.workouts, KEYS.templates, KEYS.settings, KEYS.mobilityLog];
   let dataMode = 'export';
 
   function buildBundle() {
@@ -1368,6 +1370,7 @@
     templates = load(KEYS.templates, []);
     Object.assign(settings, load(KEYS.settings, {}));
     active = load(KEYS.active, null);
+    mobilityLog = load(KEYS.mobilityLog, []);
     if (bundle.savedAt) localStorage.setItem('wt.savedAt', String(bundle.savedAt));
     return true;
   }
@@ -1780,22 +1783,75 @@
     ['3', '90% of working weight', '1–2', '2:00'],
   ];
 
-  // [name, duration/target, cue]
-  const MOBILITY_DAILY = [
-    ['Cat Cow', '60 sec', 'Spine. ~7–8 slow cycles, pausing 1s at each end.'],
-    ["World's Greatest Stretch", '30 sec / side', 'Hips, ankles, mid-back. Deep lunge, drop the elbow, then rotate open.'],
-    ['Asian Squat', '30s hold + 30s rock', 'Hips, ankles. Chest up, elbows push knees out, then rock side to side.'],
-    ['Half-Kneeling Thoracic Rotations', '30 sec / side', 'Mid/upper back. Rotate only the upper body, not the hips.'],
-    ['Wall Slides', '60 sec', 'Lower/mid traps. Flatten low back to the wall, slide arms up and down.'],
-  ];
-  const MOBILITY_PREHAB = [
-    ['(Weighted) Prone Arm Circles', '2 × 10–15', 'Light plates. Big circle forward and back, keep arms straight.'],
-    ['Wall Slides', '2 × 10–15', 'Low back flat, press arms up, stay in contact with the wall.'],
-    ['Banded Hip Abductions', '2 × 10–15', 'Band around knees, push out with the glutes. 1 set leaning forward, 1 back.'],
-    ['Dead Hangs', '10–60 sec', 'Overhang grip, relax the whole body.'],
+  /* ---------- GoWod-style guided mobility routines ----------
+     Each move: [name, seconds, cue, perSide?]. perSide moves run twice
+     (left then right) in the guided player.                              */
+  const MOBILITY_ROUTINES = [
+    { id: 'daily', name: 'Daily mobility', focus: 'Full body', moves: [
+      ['Cat Cow', 60, 'Spine. ~7–8 slow cycles, pausing 1s at each end.'],
+      ["World's Greatest Stretch", 30, 'Hips, ankles, mid-back. Deep lunge, drop the elbow, then rotate open.', true],
+      ['Deep (Asian) Squat', 60, 'Hips, ankles. Chest up, elbows push the knees out, rock side to side.'],
+      ['Half-Kneeling Thoracic Rotation', 30, 'Mid/upper back. Rotate only the upper body, not the hips.', true],
+      ['Wall Slides', 60, 'Lower/mid traps. Flatten the low back to the wall, slide the arms up and down.'],
+    ]},
+    { id: 'hips', name: 'Hips & squat depth', focus: 'Hips', moves: [
+      ['90/90 Hip Switches', 45, 'Sit tall, rotate both knees floor-to-floor, chest up the whole time.'],
+      ['Deep Squat Pry', 60, 'Sink into a deep squat, elbows push the knees out, drop lower each breath.'],
+      ['Half-Kneeling Hip Flexor Stretch', 40, 'Tuck the pelvis, squeeze the back glute, lean forward slightly.', true],
+      ['Frog Stretch', 60, 'Knees wide, ankles in line with the knees, rock the hips back slowly.'],
+      ['Pigeon Stretch', 45, 'Front shin angled, hips square, fold forward over the front leg.', true],
+    ]},
+    { id: 'shoulders', name: 'Shoulders & overhead', focus: 'Shoulders', moves: [
+      ['Band / Towel Pass-Throughs', 45, 'Wide grip, take the arms over and behind, keep the ribs down.'],
+      ['Wall Slides', 60, 'Low back flat, press the arms up and down staying on the wall.'],
+      ['Thread the Needle', 40, 'On all fours, reach one arm under and through, then open up tall.', true],
+      ['Doorway Pec Stretch', 40, 'Forearm on the frame, step through until the chest opens.', true],
+      ['Prone Y-T-W Raises', 45, 'Face down, lift the arms into a Y, then T, then W. Thumbs up.'],
+    ]},
+    { id: 'tspine', name: 'Upper back / T-spine', focus: 'Thoracic', moves: [
+      ['Cat Cow', 60, 'Move segment by segment through the whole spine.'],
+      ['Open Book', 40, 'Side-lying, knees stacked, rotate the top arm open and follow it.', true],
+      ['Quadruped T-Spine Rotation', 40, 'Hand behind the head, rotate the elbow up toward the ceiling.', true],
+      ['Thoracic Extension over an edge', 45, 'Upper back on a chair/roller, breathe and extend back over it.'],
+      ['Half-Kneeling Thoracic Rotation', 40, 'Rotate only the upper body, keep the hips facing forward.', true],
+    ]},
+    { id: 'ankles', name: 'Ankles & calves', focus: 'Ankles', moves: [
+      ['Knee-to-Wall Rocks', 45, 'Drive the knee over the toes toward the wall, heel stays down.', true],
+      ['Standing Calf Stretch', 40, 'Back leg straight, heel down, hips forward.', true],
+      ['Soleus (Bent-Knee) Stretch', 40, 'Same stance but bend the back knee to reach the lower calf.', true],
+      ['Deep Squat Ankle Rock', 60, 'In a deep squat, shift the weight forward over each ankle.'],
+      ['Toe Sit', 45, 'Kneel and sit back on tucked toes to stretch the feet and calves.'],
+    ]},
+    { id: 'wrists', name: 'Wrists & elbows', focus: 'Wrists', moves: [
+      ['Wrist Rockers — Palms Down', 40, 'Palms flat on the floor, rock forward and back gently.'],
+      ['Wrist Rockers — Palms Up', 40, 'Flip the hands palms-up, fingers toward you, rock back.'],
+      ['Wrist Circles', 30, 'Interlace the fingers and circle the wrists both directions.'],
+      ['Prayer Stretch', 40, 'Palms together, lower the hands to stretch the wrists.'],
+      ['Forearm Extensor Stretch', 40, 'Straight arm, pull the hand down and in with the other hand.', true],
+    ]},
+    { id: 'hamstrings', name: 'Hamstrings & hinge', focus: 'Posterior chain', moves: [
+      ['Standing Forward Fold', 50, 'Soft knees, hinge and hang, let the head go heavy.'],
+      ['Single-Leg Hamstring Stretch', 45, 'Hips square, hinge over the front straight leg.', true],
+      ['Downward Dog Heel Pedal', 50, 'Push the hips up and back, pedal the heels one at a time.'],
+      ['Jefferson Curl (light)', 45, 'Roll down one vertebra at a time, then reverse. Move slowly.'],
+      ['Seated Straddle Fold', 50, 'Legs wide, hinge from the hips and walk the hands forward.'],
+    ]},
+    { id: 'neck', name: 'Neck & desk relief', focus: 'Neck / posture', moves: [
+      ['Chin Tucks', 40, 'Glide the chin straight back into a double chin, hold and release.'],
+      ['Upper Trap Stretch', 40, 'Ear toward the shoulder, gentle hand assist, breathe.', true],
+      ['Levator Scapulae Stretch', 40, 'Look down toward the armpit, guide gently with the hand.', true],
+      ['Neck Rotations', 30, 'Slow half-circles ear to ear — no crunching or forcing.'],
+      ['Wall Angels', 50, 'Back to the wall, slide the arms up and down keeping contact.'],
+    ]},
+    { id: 'prehab', name: 'Post-lift prehab', focus: 'Shoulders / hips', moves: [
+      ['Prone Arm Circles', 45, 'Light or bodyweight. Big circle forward and back, arms straight.'],
+      ['Wall Slides', 45, 'Low back flat, press the arms up, stay in contact with the wall.'],
+      ['Banded Hip Abductions', 40, 'Band around the knees, push out with the glutes.', true],
+      ['Dead Hang', 45, 'Overhand grip, relax the whole body and breathe.'],
+    ]},
   ];
 
-  const mobilityDone = new Set(); // in-memory check-off for the current session
+  const mobilityDone = new Set(); // in-memory check-off for the current session (warm-ups)
 
   function renderExtras() {
     // ----- Warm-up -----
@@ -1853,9 +1909,9 @@
       absList.appendChild(card);
     });
 
-    // ----- Mobility guides -----
-    renderMobility($('#mobility-daily'), MOBILITY_DAILY);
-    renderMobility($('#mobility-prehab'), MOBILITY_PREHAB);
+    // ----- Mobility (guided, GoWod-style) -----
+    renderMobilityStreak();
+    renderMobilityRoutines();
   }
 
   function renderMobility(container, items) {
@@ -1886,6 +1942,250 @@
     });
     container.appendChild(card);
   }
+
+  /* ---------- Guided mobility: streak + routine cards + player ---------- */
+  function routineSteps(r) {
+    const steps = [];
+    r.moves.forEach(([name, secs, cue, perSide]) => {
+      if (perSide) {
+        steps.push({ name, secs, cue, side: 'Left side' });
+        steps.push({ name, secs, cue, side: 'Right side' });
+      } else {
+        steps.push({ name, secs, cue, side: null });
+      }
+    });
+    return steps;
+  }
+  function routineSeconds(r) {
+    return r.moves.reduce((s, [, secs, , perSide]) => s + (perSide ? secs * 2 : secs), 0);
+  }
+  function dayKey(ts) { return new Date(ts).toDateString(); }
+  function mobilityStreak() {
+    const days = new Set(mobilityLog.map((s) => dayKey(s.date)));
+    let streak = 0;
+    const d = new Date();
+    if (!days.has(d.toDateString())) d.setDate(d.getDate() - 1); // today not done yet is fine
+    while (days.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+    return streak;
+  }
+
+  function renderMobilityStreak() {
+    const box = $('#mobility-streak');
+    if (!box) return;
+    box.innerHTML = '';
+    const todayKey = new Date().toDateString();
+    const doneToday = mobilityLog.some((s) => dayKey(s.date) === todayKey);
+    const weekAgo = Date.now() - 7 * 864e5;
+    const thisWeek = mobilityLog.filter((s) => s.date >= weekAgo).length;
+    const streak = mobilityStreak();
+
+    const card = el('div', 'card mob-streak-card');
+    const stats = [
+      [String(streak), streak === 1 ? 'day streak' : 'day streak', 'flame'],
+      [String(thisWeek), 'this week', null],
+      [String(mobilityLog.length), 'total', null],
+    ];
+    stats.forEach(([val, label]) => {
+      const tile = el('div', 'mob-stat');
+      tile.appendChild(el('div', 'mob-stat-val', val));
+      tile.appendChild(el('div', 'mob-stat-label', label));
+      card.appendChild(tile);
+    });
+    box.appendChild(card);
+
+    const status = el('div', 'mob-today ' + (doneToday ? 'is-done' : ''));
+    status.innerHTML = doneToday
+      ? icon('check') + '<span>Mobility done today — nice.</span>'
+      : icon('clock') + '<span>No mobility logged today yet.</span>';
+    box.appendChild(status);
+  }
+
+  function renderMobilityRoutines() {
+    const wrap = $('#mobility-routines');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    MOBILITY_ROUTINES.forEach((r) => {
+      const card = el('div', 'card mob-card');
+      const head = el('div', 'mob-card-head');
+      const left = el('div', 'mob-card-title-wrap');
+      const titleRow = el('div', 'mob-card-titlerow');
+      titleRow.appendChild(el('div', 'exercise-title', r.name));
+      titleRow.appendChild(el('span', 'mob-tag', r.focus));
+      left.appendChild(titleRow);
+      const secs = routineSeconds(r);
+      left.appendChild(el('div', 'exercise-muscle',
+        `~${Math.max(1, Math.round(secs / 60))} min · ${r.moves.length} moves`));
+      head.appendChild(left);
+
+      const play = el('button', 'btn btn-primary mob-play');
+      play.innerHTML = icon('play') + '<span>Start</span>';
+      play.addEventListener('click', () => openMobilityPlayer(r));
+      head.appendChild(play);
+      card.appendChild(head);
+
+      const preview = el('div', 'mob-preview hidden');
+      routineSteps(r).forEach((st, i) => {
+        const row = el('div', 'mob-move-row');
+        row.appendChild(el('span', 'mob-move-idx', String(i + 1)));
+        const body = el('div', 'mob-move-body');
+        const nm = st.name + (st.side ? ` · ${st.side.replace(' side', '')}` : '');
+        body.appendChild(el('div', 'guide-name', nm));
+        body.appendChild(el('div', 'mobility-cue', st.cue));
+        row.appendChild(body);
+        row.appendChild(el('span', 'mob-move-secs', fmtClock(st.secs)));
+        preview.appendChild(row);
+      });
+      const toggle = el('button', 'mob-preview-toggle', 'Preview moves');
+      toggle.addEventListener('click', () => {
+        const nowHidden = preview.classList.toggle('hidden');
+        toggle.textContent = nowHidden ? 'Preview moves' : 'Hide moves';
+      });
+      card.appendChild(toggle);
+      card.appendChild(preview);
+      wrap.appendChild(card);
+    });
+  }
+
+  /* ---------- Guided mobility player ---------- */
+  const RING_C = 2 * Math.PI * 54;
+  const mobPlayerEl = $('#mobility-player');
+  let mob = null;
+
+  function openMobilityPlayer(routine) {
+    ensureAudio();
+    const steps = routineSteps(routine);
+    mob = { routine, steps, idx: 0, remaining: steps[0].secs, total: steps[0].secs, paused: false, timer: null };
+    $('#mob-done').classList.add('hidden');
+    $('.mob-stage', mobPlayerEl).classList.remove('hidden');
+    $('.mob-controls', mobPlayerEl).classList.remove('hidden');
+    $('.mob-controls-sub', mobPlayerEl).classList.remove('hidden');
+    $('#mob-ring-fill').style.strokeDasharray = String(RING_C);
+    mobPlayerEl.classList.remove('hidden');
+    document.body.classList.add('mob-open');
+    renderMobStep();
+    updatePauseBtn();
+    startMobTimer();
+  }
+
+  function startMobTimer() {
+    clearInterval(mob.timer);
+    mob.timer = setInterval(() => {
+      if (!mob || mob.paused) return;
+      mob.remaining -= 1;
+      if (mob.remaining <= 0) { stepComplete(); return; }
+      updateMobUI();
+    }, 1000);
+  }
+
+  function stepComplete() {
+    if (settings.sound) beep();
+    if (navigator.vibrate) navigator.vibrate(180);
+    if (mob.idx >= mob.steps.length - 1) { finishMobSession(); return; }
+    mobGo(mob.idx + 1);
+  }
+
+  function mobGo(idx) {
+    mob.idx = idx;
+    const st = mob.steps[idx];
+    mob.remaining = st.secs;
+    mob.total = st.secs;
+    mob.paused = false;
+    renderMobStep();
+    updatePauseBtn();
+  }
+
+  function renderMobStep() {
+    const st = mob.steps[mob.idx];
+    $('#mob-routine-name').textContent = mob.routine.name;
+    $('#mob-progress-text').textContent = `Move ${mob.idx + 1} of ${mob.steps.length}`;
+    $('#mob-move').textContent = st.name;
+    const sideEl = $('#mob-side');
+    if (st.side) { sideEl.textContent = st.side; sideEl.classList.remove('hidden'); }
+    else sideEl.classList.add('hidden');
+    $('#mob-cue').textContent = st.cue;
+    const info = getExerciseInfo(st.name);
+    const watch = $('#mob-watch');
+    if (info && info.v) {
+      watch.href = info.v;
+      watch.innerHTML = icon('play') + '<span>Watch</span>';
+      watch.classList.remove('hidden');
+    } else {
+      watch.classList.add('hidden');
+    }
+    updateMobUI();
+  }
+
+  function updateMobUI() {
+    if (!mob) return;
+    $('#mob-time').textContent = fmtClock(Math.max(0, mob.remaining));
+    const frac = mob.total > 0 ? Math.max(0, mob.remaining) / mob.total : 0;
+    $('#mob-ring-fill').style.strokeDashoffset = String(RING_C * (1 - frac));
+    const overall = (mob.idx + (1 - frac)) / mob.steps.length;
+    $('#mob-progress-fill').style.width = (overall * 100) + '%';
+  }
+
+  function togglePause() {
+    if (!mob) return;
+    mob.paused = !mob.paused;
+    updatePauseBtn();
+  }
+  function updatePauseBtn() {
+    const b = $('#mob-pause');
+    if (!mob) return;
+    b.textContent = mob.paused ? 'Resume' : 'Pause';
+    b.classList.toggle('is-paused', mob.paused);
+  }
+
+  function finishMobSession() {
+    if (mob.timer) clearInterval(mob.timer);
+    mobilityLog.push({
+      id: uid(), routineId: mob.routine.id, name: mob.routine.name,
+      date: Date.now(), moves: mob.routine.moves.length, seconds: routineSeconds(mob.routine),
+    });
+    save(KEYS.mobilityLog, mobilityLog);
+    driveSave('mobility'); // auto-backup to Google Drive (no-op if unavailable)
+    const streak = mobilityStreak();
+    $('.mob-stage', mobPlayerEl).classList.add('hidden');
+    $('.mob-controls', mobPlayerEl).classList.add('hidden');
+    $('.mob-controls-sub', mobPlayerEl).classList.add('hidden');
+    $('.mob-done-check', mobPlayerEl).innerHTML = icon('check');
+    $('#mob-done-sub').textContent =
+      `${mob.routine.name} complete · ${streak} day streak 🔥`;
+    $('#mob-done').classList.remove('hidden');
+    if (settings.sound) beep();
+    if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+  }
+
+  function closeMobilityPlayer() {
+    if (mob && mob.timer) clearInterval(mob.timer);
+    mob = null;
+    mobPlayerEl.classList.add('hidden');
+    document.body.classList.remove('mob-open');
+    renderMobilityStreak();
+    renderMobilityRoutines();
+  }
+
+  $('#mob-pause').addEventListener('click', togglePause);
+  $('#mob-next').addEventListener('click', () => {
+    if (!mob) return;
+    if (mob.idx >= mob.steps.length - 1) finishMobSession();
+    else mobGo(mob.idx + 1);
+  });
+  $('#mob-prev').addEventListener('click', () => {
+    if (!mob) return;
+    // Partway through a move → restart it; at the very start → previous move.
+    if (mob.remaining <= mob.total - 2 && mob.idx >= 0) mobGo(mob.idx);
+    else mobGo(Math.max(0, mob.idx - 1));
+  });
+  $('#mob-restart').addEventListener('click', () => { if (mob) { mob.remaining = mob.total; updateMobUI(); } });
+  $('#mob-add15').addEventListener('click', () => {
+    if (!mob) return;
+    mob.remaining += 15;
+    mob.total = Math.max(mob.total, mob.remaining);
+    updateMobUI();
+  });
+  $('#mob-close').addEventListener('click', closeMobilityPlayer);
+  $('#mob-done-btn').addEventListener('click', closeMobilityPlayer);
 
   function startAbs(absWorkout) {
     active = {

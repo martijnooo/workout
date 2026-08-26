@@ -134,13 +134,10 @@
         <p class="muted extras-intro">Tap Start to track it like any workout. Do the exercises as a circuit (one after another), rest ~2 min, repeat for 3 rounds.</p>
         <div id="abs-list"></div>
 
-        <div class="section-label">Daily mobility</div>
-        <p class="muted extras-intro">5 moves, ~1 minute each. Aim for once a day — as many quality reps as you can.</p>
-        <div id="mobility-daily"></div>
-
-        <div class="section-label">Prehab — 2× per week</div>
-        <p class="muted extras-intro">Rest ~30–60s between sets. Great after a lift or on a rest day.</p>
-        <div id="mobility-prehab"></div>
+        <div class="section-label">Mobility &amp; stretching</div>
+        <p class="muted extras-intro">GoWod-style guided sessions. Pick a routine and follow the timer — it counts each move down and moves you along hands-free.</p>
+        <div id="mobility-streak"></div>
+        <div id="mobility-routines"></div>
       </section>
     </main>
 
@@ -256,6 +253,51 @@
       <div class="dialog-actions">
         <button id="dialog-cancel" class="btn btn-ghost" data-dialog-cancel>Cancel</button>
         <button id="dialog-ok" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ GUIDED MOBILITY PLAYER ============ -->
+  <div id="mobility-player" class="mob-player hidden">
+    <div class="mob-player-inner">
+      <div class="mob-player-head">
+        <div class="mob-player-titles">
+          <div id="mob-routine-name" class="mob-routine-name"></div>
+          <div id="mob-progress-text" class="mob-progress-text"></div>
+        </div>
+        <button id="mob-close" class="modal-x mob-close">✕</button>
+      </div>
+      <div class="mob-progress-bar"><div id="mob-progress-fill" class="mob-progress-fill"></div></div>
+
+      <div class="mob-stage">
+        <div id="mob-side" class="mob-side hidden"></div>
+        <div id="mob-move" class="mob-move"></div>
+        <div class="mob-ring-wrap">
+          <svg class="mob-ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="mob-ring-track" cx="60" cy="60" r="54" />
+            <circle id="mob-ring-fill" class="mob-ring-fill" cx="60" cy="60" r="54" transform="rotate(-90 60 60)" />
+          </svg>
+          <div id="mob-time" class="mob-time">0:30</div>
+        </div>
+        <div id="mob-cue" class="mob-cue"></div>
+        <a id="mob-watch" class="mob-watch hidden" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="mob-controls">
+        <button id="mob-prev" class="btn btn-ghost mob-side-btn">‹ Back</button>
+        <button id="mob-pause" class="btn btn-primary mob-pause">Pause</button>
+        <button id="mob-next" class="btn btn-ghost mob-side-btn">Skip ›</button>
+      </div>
+      <div class="mob-controls-sub">
+        <button id="mob-restart" class="btn btn-ghost">↺ Restart move</button>
+        <button id="mob-add15" class="btn btn-ghost">+15s</button>
+      </div>
+
+      <div id="mob-done" class="mob-done hidden">
+        <div class="mob-done-check"></div>
+        <div class="mob-done-title">Nice work</div>
+        <div id="mob-done-sub" class="mob-done-sub"></div>
+        <button id="mob-done-btn" class="btn btn-primary btn-block">Done</button>
       </div>
     </div>
   </div>

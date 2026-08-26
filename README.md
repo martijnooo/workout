@@ -21,6 +21,15 @@ data lives in your browser (localStorage) — no accounts, no server.
   - Tap the countdown to change the default duration, presets (30s–3:00),
     beep on/off, and auto-start on/off.
   - Beeps + vibrates (where supported) when time's up.
+- **Mobility & stretching** (GoWod-style) in the **Extras** tab — a library of
+  guided routines (daily full-body plus targeted sessions for hips, shoulders,
+  T-spine, ankles, wrists, hamstrings, neck, and post-lift prehab):
+  - **Hands-free guided player** with a per-move countdown ring that
+    auto-advances, beeps + vibrates between moves, and runs left/right sides
+    automatically. Pause, skip, go back, restart a move, or add 15s.
+  - **Streak tracking** — completed sessions build a day streak and are counted
+    per week and in total, and sync to Google Drive alongside your workouts.
+  - **Preview moves** on any routine before you start.
 - **Works offline** and is installable as a PWA (Add to Home Screen).
 
 ## Running it
