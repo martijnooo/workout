@@ -1784,75 +1784,132 @@
     ['3', '90% of working weight', '1–2', '2:00'],
   ];
 
-  /* ---------- GoWod-style guided mobility routines ----------
-     Each move: [name, seconds, cue, perSide?]. perSide moves run twice
-     (left then right) in the guided player.                              */
-  const MOBILITY_ROUTINES = [
-    { id: 'daily', name: 'Daily mobility', focus: 'Full body', moves: [
-      ['Cat Cow', 60, 'Spine. ~7–8 slow cycles, pausing 1s at each end.'],
-      ["World's Greatest Stretch", 30, 'Hips, ankles, mid-back. Deep lunge, drop the elbow, then rotate open.', true],
-      ['Deep (Asian) Squat', 60, 'Hips, ankles. Chest up, elbows push the knees out, rock side to side.'],
-      ['Half-Kneeling Thoracic Rotation', 30, 'Mid/upper back. Rotate only the upper body, not the hips.', true],
-      ['Wall Slides', 60, 'Lower/mid traps. Flatten the low back to the wall, slide the arms up and down.'],
-    ]},
-    { id: 'hips', name: 'Hips & squat depth', focus: 'Hips', moves: [
-      ['90/90 Hip Switches', 45, 'Sit tall, rotate both knees floor-to-floor, chest up the whole time.'],
-      ['Deep Squat Pry', 60, 'Sink into a deep squat, elbows push the knees out, drop lower each breath.'],
-      ['Half-Kneeling Hip Flexor Stretch', 40, 'Tuck the pelvis, squeeze the back glute, lean forward slightly.', true],
-      ['Frog Stretch', 60, 'Knees wide, ankles in line with the knees, rock the hips back slowly.'],
-      ['Pigeon Stretch', 45, 'Front shin angled, hips square, fold forward over the front leg.', true],
-    ]},
-    { id: 'shoulders', name: 'Shoulders & overhead', focus: 'Shoulders', moves: [
-      ['Band / Towel Pass-Throughs', 45, 'Wide grip, take the arms over and behind, keep the ribs down.'],
-      ['Wall Slides', 60, 'Low back flat, press the arms up and down staying on the wall.'],
-      ['Thread the Needle', 40, 'On all fours, reach one arm under and through, then open up tall.', true],
-      ['Doorway Pec Stretch', 40, 'Forearm on the frame, step through until the chest opens.', true],
-      ['Prone Y-T-W Raises', 45, 'Face down, lift the arms into a Y, then T, then W. Thumbs up.'],
-    ]},
-    { id: 'tspine', name: 'Upper back / T-spine', focus: 'Thoracic', moves: [
-      ['Cat Cow', 60, 'Move segment by segment through the whole spine.'],
-      ['Open Book', 40, 'Side-lying, knees stacked, rotate the top arm open and follow it.', true],
-      ['Quadruped T-Spine Rotation', 40, 'Hand behind the head, rotate the elbow up toward the ceiling.', true],
-      ['Thoracic Extension over an edge', 45, 'Upper back on a chair/roller, breathe and extend back over it.'],
-      ['Half-Kneeling Thoracic Rotation', 40, 'Rotate only the upper body, keep the hips facing forward.', true],
-    ]},
-    { id: 'ankles', name: 'Ankles & calves', focus: 'Ankles', moves: [
-      ['Knee-to-Wall Rocks', 45, 'Drive the knee over the toes toward the wall, heel stays down.', true],
-      ['Standing Calf Stretch', 40, 'Back leg straight, heel down, hips forward.', true],
-      ['Soleus (Bent-Knee) Stretch', 40, 'Same stance but bend the back knee to reach the lower calf.', true],
-      ['Deep Squat Ankle Rock', 60, 'In a deep squat, shift the weight forward over each ankle.'],
-      ['Toe Sit', 45, 'Kneel and sit back on tucked toes to stretch the feet and calves.'],
-    ]},
-    { id: 'wrists', name: 'Wrists & elbows', focus: 'Wrists', moves: [
-      ['Wrist Rockers — Palms Down', 40, 'Palms flat on the floor, rock forward and back gently.'],
-      ['Wrist Rockers — Palms Up', 40, 'Flip the hands palms-up, fingers toward you, rock back.'],
-      ['Wrist Circles', 30, 'Interlace the fingers and circle the wrists both directions.'],
-      ['Prayer Stretch', 40, 'Palms together, lower the hands to stretch the wrists.'],
-      ['Forearm Extensor Stretch', 40, 'Straight arm, pull the hand down and in with the other hand.', true],
-    ]},
-    { id: 'hamstrings', name: 'Hamstrings & hinge', focus: 'Posterior chain', moves: [
-      ['Standing Forward Fold', 50, 'Soft knees, hinge and hang, let the head go heavy.'],
-      ['Single-Leg Hamstring Stretch', 45, 'Hips square, hinge over the front straight leg.', true],
-      ['Downward Dog Heel Pedal', 50, 'Push the hips up and back, pedal the heels one at a time.'],
-      ['Jefferson Curl (light)', 45, 'Roll down one vertebra at a time, then reverse. Move slowly.'],
-      ['Seated Straddle Fold', 50, 'Legs wide, hinge from the hips and walk the hands forward.'],
-    ]},
-    { id: 'neck', name: 'Neck & desk relief', focus: 'Neck / posture', moves: [
-      ['Chin Tucks', 40, 'Glide the chin straight back into a double chin, hold and release.'],
-      ['Upper Trap Stretch', 40, 'Ear toward the shoulder, gentle hand assist, breathe.', true],
-      ['Levator Scapulae Stretch', 40, 'Look down toward the armpit, guide gently with the hand.', true],
-      ['Neck Rotations', 30, 'Slow half-circles ear to ear — no crunching or forcing.'],
-      ['Wall Angels', 50, 'Back to the wall, slide the arms up and down keeping contact.'],
-    ]},
-    { id: 'prehab', name: 'Post-lift prehab', focus: 'Shoulders / hips', moves: [
-      ['Prone Arm Circles', 45, 'Light or bodyweight. Big circle forward and back, arms straight.'],
-      ['Wall Slides', 45, 'Low back flat, press the arms up, stay in contact with the wall.'],
-      ['Banded Hip Abductions', 40, 'Band around the knees, push out with the glutes.', true],
-      ['Dead Hang', 45, 'Overhand grip, relax the whole body and breathe.'],
-    ]},
+  /* ---------- GoWod-style mobility engine ----------
+     Instead of fixed routines, the user picks a length (and optionally a
+     focus area) and we build a fresh, varied session on the fly that fills
+     the time. A focus area pulls extra moves from that area.
+
+     Move pool — [name, area, seconds, cue, perSide?]. perSide moves run
+     twice (left then right) in the guided player.                          */
+  const MOBILITY_MOVES = [
+    // General / spine — the connective tissue of any session
+    ['Cat Cow', 'spine', 50, 'Move segment by segment through the whole spine, pausing 1s at each end.'],
+    ["World's Greatest Stretch", 'spine', 30, 'Deep lunge, drop the elbow inside the front foot, then rotate open.', true],
+    ['Thread the Needle', 'spine', 30, 'On all fours, reach one arm under and through, then open up tall.', true],
+    ["Child's Pose Reach", 'spine', 45, 'Hips to heels, walk the hands forward and breathe into the back.'],
+    ['Standing Side Bend', 'spine', 30, 'Reach tall and lean over, feel the whole side-body lengthen.', true],
+    ['Segmented Roll-Down', 'spine', 40, 'Chin to chest, roll down one vertebra at a time, then stack back up.'],
+    // Hips
+    ['90/90 Hip Switches', 'hips', 45, 'Sit tall, rotate both knees floor-to-floor, chest up the whole time.'],
+    ['Deep Squat Pry', 'hips', 55, 'Sink into a deep squat, elbows push the knees out, drop lower each breath.'],
+    ['Half-Kneeling Hip Flexor Stretch', 'hips', 40, 'Tuck the pelvis, squeeze the back glute, lean forward slightly.', true],
+    ['Frog Stretch', 'hips', 55, 'Knees wide, ankles in line with the knees, rock the hips back slowly.'],
+    ['Pigeon Stretch', 'hips', 45, 'Front shin angled, hips square, fold forward over the front leg.', true],
+    ['Butterfly Stretch', 'hips', 45, 'Soles together, gently press the knees down, hinge forward from the hips.'],
+    ['Cossack Squat Rock', 'hips', 30, 'Wide stance, shift over one bent leg keeping the other straight.', true],
+    ['Fire Hydrant Circles', 'hips', 30, 'On all fours, lift the knee out and draw big slow circles.', true],
+    // Shoulders
+    ['Band / Towel Pass-Throughs', 'shoulders', 45, 'Wide grip, take the arms over and behind, keep the ribs down.'],
+    ['Wall Slides', 'shoulders', 45, 'Low back flat, press the arms up and down staying on the wall.'],
+    ['Doorway Pec Stretch', 'shoulders', 40, 'Forearm on the frame, step through until the chest opens.', true],
+    ['Prone Y-T-W Raises', 'shoulders', 45, 'Face down, lift the arms into a Y, then T, then W. Thumbs up.'],
+    ['Cross-Body Shoulder Stretch', 'shoulders', 30, 'Draw the arm across the body, hug it in with the other arm.', true],
+    ['Shoulder CARs', 'shoulders', 35, 'Draw the biggest slow circle you can with a straight arm.', true],
+    // Upper back / thoracic
+    ['Open Book', 'tspine', 40, 'Side-lying, knees stacked, rotate the top arm open and follow it.', true],
+    ['Quadruped T-Spine Rotation', 'tspine', 40, 'Hand behind the head, rotate the elbow up toward the ceiling.', true],
+    ['Thoracic Extension over an edge', 'tspine', 45, 'Upper back on a chair/roller, breathe and extend back over it.'],
+    ['Half-Kneeling Thoracic Rotation', 'tspine', 40, 'Rotate only the upper body, keep the hips facing forward.', true],
+    ['Seated Twist', 'tspine', 30, 'Sit tall, rotate and gently use the arm as leverage, grow taller.', true],
+    // Ankles & calves
+    ['Knee-to-Wall Rocks', 'ankles', 40, 'Drive the knee over the toes toward the wall, heel stays down.', true],
+    ['Standing Calf Stretch', 'ankles', 40, 'Back leg straight, heel down, hips forward into the wall.', true],
+    ['Soleus (Bent-Knee) Stretch', 'ankles', 40, 'Same stance but bend the back knee to reach the lower calf.', true],
+    ['Deep Squat Ankle Rock', 'ankles', 50, 'In a deep squat, shift the weight forward over each ankle.'],
+    ['Toe Sit', 'ankles', 45, 'Kneel and sit back on tucked toes to stretch the feet and calves.'],
+    ['Ankle CARs', 'ankles', 30, 'Draw slow controlled circles with the foot, both directions.', true],
+    // Hamstrings & posterior chain
+    ['Standing Forward Fold', 'hamstrings', 45, 'Soft knees, hinge and hang, let the head go heavy.'],
+    ['Single-Leg Hamstring Stretch', 'hamstrings', 45, 'Hips square, hinge over the front straight leg.', true],
+    ['Downward Dog Heel Pedal', 'hamstrings', 45, 'Push the hips up and back, pedal the heels one at a time.'],
+    ['Jefferson Curl (light)', 'hamstrings', 45, 'Roll down one vertebra at a time, then reverse. Move slowly.'],
+    ['Seated Straddle Fold', 'hamstrings', 50, 'Legs wide, hinge from the hips and walk the hands forward.'],
+    ['Supine Strap Hamstring Stretch', 'hamstrings', 40, 'On your back, strap around the foot, straighten the leg to the sky.', true],
+    // Wrists & elbows
+    ['Wrist Rockers — Palms Down', 'wrists', 40, 'Palms flat on the floor, rock forward and back gently.'],
+    ['Wrist Rockers — Palms Up', 'wrists', 40, 'Flip the hands palms-up, fingers toward you, rock back.'],
+    ['Wrist Circles', 'wrists', 30, 'Interlace the fingers and circle the wrists both directions.'],
+    ['Prayer Stretch', 'wrists', 35, 'Palms together, lower the hands to stretch the wrists.'],
+    ['Reverse Prayer Stretch', 'wrists', 35, 'Backs of the hands together, lift gently to stretch the flexors.'],
+    ['Forearm Extensor Stretch', 'wrists', 35, 'Straight arm, pull the hand down and in with the other hand.', true],
+    // Neck & desk relief
+    ['Chin Tucks', 'neck', 35, 'Glide the chin straight back into a double chin, hold and release.'],
+    ['Upper Trap Stretch', 'neck', 35, 'Ear toward the shoulder, gentle hand assist, breathe.', true],
+    ['Levator Scapulae Stretch', 'neck', 35, 'Look down toward the armpit, guide gently with the hand.', true],
+    ['Neck Rotations', 'neck', 30, 'Slow half-circles ear to ear — no crunching or forcing.'],
+    ['Wall Angels', 'neck', 45, 'Back to the wall, slide the arms up and down keeping contact.'],
+  ].map(([name, area, secs, cue, perSide]) => ({ name, area, secs, cue, perSide: !!perSide }));
+
+  // Focus areas offered in the builder. 'full' draws from the whole pool.
+  const MOB_FOCI = [
+    ['full', 'Full body'], ['hips', 'Hips'], ['shoulders', 'Shoulders'],
+    ['tspine', 'Upper back'], ['hamstrings', 'Hamstrings'], ['ankles', 'Ankles'],
+    ['wrists', 'Wrists'], ['neck', 'Neck'],
   ];
+  const MOB_FOCUS_LABEL = Object.fromEntries(MOB_FOCI);
+  const MOB_DURATIONS = [5, 10, 15, 20]; // minutes
 
   const mobilityDone = new Set(); // in-memory check-off for the current session (warm-ups)
+
+  /* ---------- Session builder ---------- */
+  function mobMoveSecs(m) { return m.perSide ? m.secs * 2 : m.secs; }
+  function shuffled(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  // Build a fresh session that fills ~targetSecs. When a focus area is set,
+  // roughly two of every three moves come from that area; the rest are
+  // complementary moves from the wider pool so the session stays balanced.
+  function buildMobilitySession(minutes, focus) {
+    const target = minutes * 60;
+    const isFull = !focus || focus === 'full';
+    const focusPool = isFull ? MOBILITY_MOVES.slice()
+      : MOBILITY_MOVES.filter((m) => m.area === focus);
+    const otherPool = isFull ? MOBILITY_MOVES.slice()
+      : MOBILITY_MOVES.filter((m) => m.area !== focus);
+    let fq = shuffled(focusPool);
+    let oq = shuffled(otherPool);
+    const draw = (queueName) => {
+      let q = queueName === 'f' ? fq : oq;
+      const pool = queueName === 'f' ? focusPool : otherPool;
+      if (!q.length) { q = shuffled(pool); if (queueName === 'f') fq = q; else oq = q; }
+      // Avoid repeating the move we just used back-to-back.
+      let idx = q.findIndex((m) => m.name !== lastName);
+      if (idx < 0) idx = 0;
+      return q.splice(idx, 1)[0];
+    };
+    const moves = [];
+    let total = 0, i = 0, lastName = '';
+    // Always leave room for at least one move; stop once we're close to target.
+    while (total < target - 12 && moves.length < 40) {
+      const useOther = !isFull && otherPool.length && i % 3 === 2;
+      const m = draw(useOther ? 'o' : 'f');
+      if (!m) break;
+      moves.push([m.name, m.secs, m.cue, m.perSide]);
+      total += mobMoveSecs(m);
+      lastName = m.name;
+      i++;
+    }
+    return {
+      id: 'custom', focus: isFull ? 'full' : focus,
+      name: `${MOB_FOCUS_LABEL[isFull ? 'full' : focus]} · ${minutes} min`,
+      moves,
+    };
+  }
 
   function renderExtras() {
     // ----- Warm-up -----
@@ -1915,7 +1972,7 @@
   // Mobility now lives in its own top-level tab.
   function renderMobilityView() {
     renderMobilityStreak();
-    renderMobilityRoutines();
+    renderMobilityBuilder();
   }
 
   function renderMobility(container, items) {
@@ -2004,50 +2061,57 @@
     box.appendChild(status);
   }
 
-  function renderMobilityRoutines() {
+  // Builder state (persisted so the last choice sticks).
+  let mobMins = MOB_DURATIONS.includes(settings.mobMins) ? settings.mobMins : 10;
+  let mobFocus = MOB_FOCUS_LABEL[settings.mobFocus] ? settings.mobFocus : 'full';
+
+  function renderMobilityBuilder() {
     const wrap = $('#mobility-routines');
     if (!wrap) return;
     wrap.innerHTML = '';
-    MOBILITY_ROUTINES.forEach((r) => {
-      const card = el('div', 'card mob-card');
-      const head = el('div', 'mob-card-head');
-      const left = el('div', 'mob-card-title-wrap');
-      const titleRow = el('div', 'mob-card-titlerow');
-      titleRow.appendChild(el('div', 'exercise-title', r.name));
-      titleRow.appendChild(el('span', 'mob-tag', r.focus));
-      left.appendChild(titleRow);
-      const secs = routineSeconds(r);
-      left.appendChild(el('div', 'exercise-muscle',
-        `~${Math.max(1, Math.round(secs / 60))} min · ${r.moves.length} moves`));
-      head.appendChild(left);
+    const card = el('div', 'card mob-builder');
 
-      const play = el('button', 'btn btn-primary mob-play');
-      play.innerHTML = icon('play') + '<span>Start</span>';
-      play.addEventListener('click', () => openMobilityPlayer(r));
-      head.appendChild(play);
-      card.appendChild(head);
-
-      const preview = el('div', 'mob-preview hidden');
-      routineSteps(r).forEach((st, i) => {
-        const row = el('div', 'mob-move-row');
-        row.appendChild(el('span', 'mob-move-idx', String(i + 1)));
-        const body = el('div', 'mob-move-body');
-        const nm = st.name + (st.side ? ` · ${st.side.replace(' side', '')}` : '');
-        body.appendChild(el('div', 'guide-name', nm));
-        body.appendChild(el('div', 'mobility-cue', st.cue));
-        row.appendChild(body);
-        row.appendChild(el('span', 'mob-move-secs', fmtClock(st.secs)));
-        preview.appendChild(row);
-      });
-      const toggle = el('button', 'mob-preview-toggle', 'Preview moves');
-      toggle.addEventListener('click', () => {
-        const nowHidden = preview.classList.toggle('hidden');
-        toggle.textContent = nowHidden ? 'Preview moves' : 'Hide moves';
-      });
-      card.appendChild(toggle);
-      card.appendChild(preview);
-      wrap.appendChild(card);
+    // Duration
+    card.appendChild(el('div', 'sub-label', 'How long?'));
+    const durRow = el('div', 'mob-chip-row');
+    MOB_DURATIONS.forEach((min) => {
+      const chip = el('button', 'mob-chip' + (min === mobMins ? ' is-sel' : ''), `${min} min`);
+      chip.addEventListener('click', () => { mobMins = min; persistMobPrefs(); renderMobilityBuilder(); });
+      durRow.appendChild(chip);
     });
+    card.appendChild(durRow);
+
+    // Focus
+    card.appendChild(el('div', 'sub-label', 'Focus area'));
+    const focusRow = el('div', 'mob-chip-row');
+    MOB_FOCI.forEach(([id, label]) => {
+      const chip = el('button', 'mob-chip' + (id === mobFocus ? ' is-sel' : ''), label);
+      chip.addEventListener('click', () => { mobFocus = id; persistMobPrefs(); renderMobilityBuilder(); });
+      focusRow.appendChild(chip);
+    });
+    card.appendChild(focusRow);
+
+    // What you'll get
+    const preview = buildMobilitySession(mobMins, mobFocus);
+    const secs = routineSeconds(preview);
+    const note = mobFocus === 'full'
+      ? 'A balanced full-body flow.'
+      : `Weighted toward ${MOB_FOCUS_LABEL[mobFocus].toLowerCase()}, with complementary moves mixed in.`;
+    card.appendChild(el('div', 'mob-builder-note',
+      `≈ ${preview.moves.length} moves · ${fmtClock(secs)}. Fresh mix every time. ${note}`));
+
+    const start = el('button', 'btn btn-primary btn-block mob-start');
+    start.innerHTML = icon('play') + '<span>Start session</span>';
+    start.addEventListener('click', () => openMobilityPlayer(buildMobilitySession(mobMins, mobFocus)));
+    card.appendChild(start);
+
+    wrap.appendChild(card);
+  }
+
+  function persistMobPrefs() {
+    settings.mobMins = mobMins;
+    settings.mobFocus = mobFocus;
+    save(KEYS.settings, settings);
   }
 
   /* ---------- Guided mobility player ---------- */
@@ -2166,7 +2230,7 @@
     mobPlayerEl.classList.add('hidden');
     document.body.classList.remove('mob-open');
     renderMobilityStreak();
-    renderMobilityRoutines();
+    renderMobilityBuilder();
   }
 
   $('#mob-pause').addEventListener('click', togglePause);
