@@ -1887,6 +1887,33 @@
   const MOB_FOCUS_LABEL = Object.fromEntries(MOB_FOCI);
   const MOB_DURATIONS = [5, 10, 15, 20]; // minutes
 
+  /* ---------- Per-area body-map glyphs (inline SVG, self-contained) ----------
+     A shared standing figure drawn faintly, with the worked region marked in
+     the accent colour. Themeable (uses currentColor + tokens) and crisp at
+     any size — no external images, so it renders inside the artifact CSP.    */
+  const MOB_FIG_BASE =
+    '<circle cx="12" cy="4" r="2.2"/>' +
+    '<path d="M12 6.2V13"/>' +
+    '<path d="M12 7.6L8 12M12 7.6l4 4.4"/>' +
+    '<path d="M12 13l-3 7M12 13l3 7"/>';
+  const MOB_AREA_MARK = {
+    spine: '<path class="mob-fig-mark-line" d="M12 6.4V13"/>',
+    neck: '<circle class="mob-fig-mark" cx="12" cy="6.2" r="1.5"/>',
+    shoulders: '<circle class="mob-fig-mark" cx="10" cy="8" r="1.3"/><circle class="mob-fig-mark" cx="14" cy="8" r="1.3"/>',
+    tspine: '<circle class="mob-fig-mark" cx="12" cy="9.4" r="1.6"/>',
+    hips: '<circle class="mob-fig-mark" cx="12" cy="12.8" r="1.7"/>',
+    hamstrings: '<circle class="mob-fig-mark" cx="10.4" cy="16.5" r="1.3"/><circle class="mob-fig-mark" cx="13.6" cy="16.5" r="1.3"/>',
+    ankles: '<circle class="mob-fig-mark" cx="9.3" cy="19.4" r="1.2"/><circle class="mob-fig-mark" cx="14.7" cy="19.4" r="1.2"/>',
+    wrists: '<circle class="mob-fig-mark" cx="8" cy="12" r="1.3"/><circle class="mob-fig-mark" cx="16" cy="12" r="1.3"/>',
+  };
+  function areaGlyph(area, cls) {
+    const isFull = !area || area === 'full';
+    const base = `<g class="mob-fig-base${isFull ? ' is-full' : ''}">${MOB_FIG_BASE}</g>`;
+    const mark = isFull ? '' : (MOB_AREA_MARK[area] || '');
+    return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" ` +
+      `stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${base}${mark}</svg>`;
+  }
+
   const mobilityDone = new Set(); // in-memory check-off for the current session (warm-ups)
 
   /* ---------- Session builder ---------- */
@@ -1927,7 +1954,7 @@
       const useOther = !isFull && otherPool.length && i % 3 === 2;
       const m = draw(useOther ? 'o' : 'f');
       if (!m) break;
-      moves.push([m.name, m.secs, m.cue, m.perSide]);
+      moves.push([m.name, m.secs, m.cue, m.perSide, m.area]);
       total += mobMoveSecs(m);
       lastName = m.name;
       i++;
@@ -2035,12 +2062,12 @@
   /* ---------- Guided mobility: streak + routine cards + player ---------- */
   function routineSteps(r) {
     const steps = [];
-    r.moves.forEach(([name, secs, cue, perSide]) => {
+    r.moves.forEach(([name, secs, cue, perSide, area]) => {
       if (perSide) {
-        steps.push({ name, secs, cue, side: 'Left side' });
-        steps.push({ name, secs, cue, side: 'Right side' });
+        steps.push({ name, secs, cue, area, side: 'Left side' });
+        steps.push({ name, secs, cue, area, side: 'Right side' });
       } else {
-        steps.push({ name, secs, cue, side: null });
+        steps.push({ name, secs, cue, area, side: null });
       }
     });
     return steps;
@@ -2113,7 +2140,8 @@
     card.appendChild(el('div', 'sub-label', 'Focus area'));
     const focusRow = el('div', 'mob-chip-row');
     MOB_FOCI.forEach(([id, label]) => {
-      const chip = el('button', 'mob-chip' + (id === mobFocus ? ' is-sel' : ''), label);
+      const chip = el('button', 'mob-chip mob-chip-focus' + (id === mobFocus ? ' is-sel' : ''));
+      chip.innerHTML = areaGlyph(id, 'mob-chip-ic') + `<span>${label}</span>`;
       chip.addEventListener('click', () => { mobFocus = id; persistMobPrefs(); renderMobilityBuilder(); });
       focusRow.appendChild(chip);
     });
@@ -2194,6 +2222,7 @@
     const st = mob.steps[mob.idx];
     $('#mob-routine-name').textContent = mob.routine.name;
     $('#mob-progress-text').textContent = `Move ${mob.idx + 1} of ${mob.steps.length}`;
+    $('#mob-illus').innerHTML = areaGlyph(st.area, 'mob-illus-svg');
     $('#mob-move').textContent = st.name;
     const sideEl = $('#mob-side');
     if (st.side) { sideEl.textContent = st.side; sideEl.classList.remove('hidden'); }
