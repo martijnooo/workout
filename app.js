@@ -303,16 +303,43 @@
   /* ============================================================
      Navigation
      ============================================================ */
+  // History, Extras and Exercises are grouped under the "More" tab and
+  // switched between with the sub-nav; the rest are top-level tabs.
+  const SUB_VIEWS = ['history', 'extras', 'exercises'];
+  let currentSub = 'history';
+
   $$('.tab-btn').forEach((btn) => {
     btn.addEventListener('click', () => switchView(btn.dataset.view));
   });
+  $$('.subnav-btn').forEach((btn) => {
+    btn.addEventListener('click', () => showSub(btn.dataset.sub));
+  });
+
+  function renderView(name) {
+    if (name === 'history') renderHistory();
+    else if (name === 'exercises') renderLibrary();
+    else if (name === 'extras') renderExtras();
+    else if (name === 'mobility') renderMobilityView();
+  }
+
   function switchView(name) {
+    // A grouped view (or the "More" tab itself) routes through the sub-nav.
+    if (name === 'more') { showSub(currentSub); return; }
+    if (SUB_VIEWS.includes(name)) { showSub(name); return; }
+    $('#subnav').classList.add('hidden');
     $$('.tab-btn').forEach((b) => b.classList.toggle('is-active', b.dataset.view === name));
     $$('.view').forEach((v) => v.classList.toggle('is-active', v.id === 'view-' + name));
-    if (name === 'history') renderHistory();
-    if (name === 'exercises') renderLibrary();
-    if (name === 'extras') renderExtras();
-    if (name === 'mobility') renderMobilityView();
+    renderView(name);
+  }
+
+  function showSub(sub) {
+    currentSub = sub;
+    $('#subnav').classList.remove('hidden');
+    $$('.subnav-btn').forEach((b) => b.classList.toggle('is-active', b.dataset.sub === sub));
+    // The "More" tab stays highlighted for any grouped sub-view.
+    $$('.tab-btn').forEach((b) => b.classList.toggle('is-active', b.dataset.view === 'more'));
+    $$('.view').forEach((v) => v.classList.toggle('is-active', v.id === 'view-' + sub));
+    renderView(sub);
   }
 
   /* ============================================================
@@ -869,6 +896,7 @@
     clearInterval(sessionInterval);
     if (!active) return;
     const update = () => {
+      if (!active) { clearInterval(sessionInterval); return; } // workout ended
       const secs = Math.floor((Date.now() - active.startedAt) / 1000);
       $('#session-timer').textContent = fmtClock(secs);
     };

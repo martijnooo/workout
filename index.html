@@ -22,6 +22,13 @@
     </header>
 
     <main>
+      <!-- ============ SUB-NAV for the "More" group ============ -->
+      <div id="subnav" class="subnav hidden">
+        <button class="subnav-btn" data-sub="history">History</button>
+        <button class="subnav-btn" data-sub="extras">Extras</button>
+        <button class="subnav-btn" data-sub="exercises">Exercises</button>
+      </div>
+
       <!-- ============ WORKOUT VIEW ============ -->
       <section id="view-workout" class="view is-active">
         <!-- No active workout -->
@@ -163,21 +170,13 @@
         <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>
         <span>Workout</span>
       </button>
-      <button class="tab-btn" data-view="history">
-        <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 108.5-8.5A8.5 8.5 0 005 7"/><path d="M4.5 3.5V7H8"/><path d="M12 8v4l3 2"/></svg>
-        <span>History</span>
-      </button>
       <button class="tab-btn" data-view="mobility">
         <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4" r="2"/><path d="M12 6v7"/><path d="M12 8L8.5 5M12 8l3.5-3"/><path d="M12 13l-3 6M12 13l3 6"/></svg>
         <span>Mobility</span>
       </button>
-      <button class="tab-btn" data-view="extras">
-        <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
-        <span>Extras</span>
-      </button>
-      <button class="tab-btn" data-view="exercises">
-        <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>
-        <span>Exercises</span>
+      <button class="tab-btn" data-view="more">
+        <svg class="tab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>
+        <span>More</span>
       </button>
     </nav>
   </div>

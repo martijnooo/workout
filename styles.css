@@ -81,6 +81,22 @@ body { min-height: 100dvh; }
 
 main { padding: 18px 16px 8px; }
 
+/* ---------- Sub-nav (segmented control for the "More" group) ---------- */
+.subnav {
+  display: flex; gap: 4px; margin: 0 0 18px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px;
+}
+.subnav.hidden { display: none; }
+.subnav-btn {
+  flex: 1; background: none; border: none; cursor: pointer;
+  color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 600;
+  padding: 9px 8px; border-radius: 999px; transition: color .15s, background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.subnav-btn:hover { color: var(--text-2); }
+.subnav-btn.is-active { background: var(--surface-3); color: var(--text); box-shadow: var(--shadow-sm); }
+
 /* ---------- Views ---------- */
 .view { display: none; }
 .view.is-active { display: block; animation: rise .22s cubic-bezier(.22,.61,.36,1); }
@@ -90,7 +106,7 @@ main { padding: 18px 16px 8px; }
 .tabbar {
   position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
   width: 100%; max-width: 720px; z-index: 30;
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-template-columns: repeat(3, 1fr);
   background: var(--bg);
   background: color-mix(in srgb, var(--bg) 90%, transparent);
   backdrop-filter: blur(16px);
