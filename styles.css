@@ -90,7 +90,7 @@ main { padding: 18px 16px 8px; }
 .tabbar {
   position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
   width: 100%; max-width: 720px; z-index: 30;
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(5, 1fr);
   background: var(--bg);
   background: color-mix(in srgb, var(--bg) 90%, transparent);
   backdrop-filter: blur(16px);

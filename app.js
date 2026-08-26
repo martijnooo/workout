@@ -312,6 +312,7 @@
     if (name === 'history') renderHistory();
     if (name === 'exercises') renderLibrary();
     if (name === 'extras') renderExtras();
+    if (name === 'mobility') renderMobilityView();
   }
 
   /* ============================================================
@@ -1909,7 +1910,10 @@
       absList.appendChild(card);
     });
 
-    // ----- Mobility (guided, GoWod-style) -----
+  }
+
+  // Mobility now lives in its own top-level tab.
+  function renderMobilityView() {
     renderMobilityStreak();
     renderMobilityRoutines();
   }
