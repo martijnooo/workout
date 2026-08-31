@@ -1817,66 +1817,68 @@
      focus area) and we build a fresh, varied session on the fly that fills
      the time. A focus area pulls extra moves from that area.
 
-     Move pool — [name, area, seconds, cue, perSide?]. perSide moves run
-     twice (left then right) in the guided player.                          */
+     Move pool — [name, area, seconds, cue, explanation, perSide?].
+       cue         = the quick how-to shown in bold during the move.
+       explanation = what it targets and why it helps.
+     perSide moves run twice (left then right) in the guided player.        */
   const MOBILITY_MOVES = [
     // General / spine — the connective tissue of any session
-    ['Cat Cow', 'spine', 50, 'Move segment by segment through the whole spine, pausing 1s at each end.'],
-    ["World's Greatest Stretch", 'spine', 30, 'Deep lunge, drop the elbow inside the front foot, then rotate open.', true],
-    ['Thread the Needle', 'spine', 30, 'On all fours, reach one arm under and through, then open up tall.', true],
-    ["Child's Pose Reach", 'spine', 45, 'Hips to heels, walk the hands forward and breathe into the back.'],
-    ['Standing Side Bend', 'spine', 30, 'Reach tall and lean over, feel the whole side-body lengthen.', true],
-    ['Segmented Roll-Down', 'spine', 40, 'Chin to chest, roll down one vertebra at a time, then stack back up.'],
+    ['Cat Cow', 'spine', 50, 'Move segment by segment through the whole spine, pausing 1s at each end.', 'Warms up and mobilises the entire spine, easing stiffness between the shoulder blades and in the low back.'],
+    ["World's Greatest Stretch", 'spine', 30, 'Deep lunge, drop the elbow inside the front foot, then rotate open.', 'A full-body opener that hits the hip flexors, hamstrings, groin and mid-back in one flowing movement.', true],
+    ['Thread the Needle', 'spine', 30, 'On all fours, reach one arm under and through, then open up tall.', 'Rotates and decompresses the mid-back and opens the shoulder — a great antidote to desk-bound stiffness.', true],
+    ["Child's Pose Reach", 'spine', 45, 'Hips to heels, walk the hands forward and breathe into the back.', 'Gently lengthens the lats, spine and hips while slowing the breath — a good reset between harder moves.'],
+    ['Standing Side Bend', 'spine', 30, 'Reach tall and lean over, feel the whole side-body lengthen.', 'Opens the ribs, lats and obliques, restoring side-to-side flexibility that sitting tends to erode.', true],
+    ['Segmented Roll-Down', 'spine', 40, 'Chin to chest, roll down one vertebra at a time, then stack back up.', 'Teaches the spine to move one bone at a time and releases hamstring and low-back tension.'],
     // Hips
-    ['90/90 Hip Switches', 'hips', 45, 'Sit tall, rotate both knees floor-to-floor, chest up the whole time.'],
-    ['Deep Squat Pry', 'hips', 55, 'Sink into a deep squat, elbows push the knees out, drop lower each breath.'],
-    ['Half-Kneeling Hip Flexor Stretch', 'hips', 40, 'Tuck the pelvis, squeeze the back glute, lean forward slightly.', true],
-    ['Frog Stretch', 'hips', 55, 'Knees wide, ankles in line with the knees, rock the hips back slowly.'],
-    ['Pigeon Stretch', 'hips', 45, 'Front shin angled, hips square, fold forward over the front leg.', true],
-    ['Butterfly Stretch', 'hips', 45, 'Soles together, gently press the knees down, hinge forward from the hips.'],
-    ['Cossack Squat Rock', 'hips', 30, 'Wide stance, shift over one bent leg keeping the other straight.', true],
-    ['Fire Hydrant Circles', 'hips', 30, 'On all fours, lift the knee out and draw big slow circles.', true],
+    ['90/90 Hip Switches', 'hips', 45, 'Sit tall, rotate both knees floor-to-floor, chest up the whole time.', 'Builds internal and external hip rotation — the range most people lose and need for deep squats and pain-free hips.'],
+    ['Deep Squat Pry', 'hips', 55, 'Sink into a deep squat, elbows push the knees out, drop lower each breath.', 'Opens the hips, groin and ankles at the bottom of a squat to restore your natural resting position.'],
+    ['Half-Kneeling Hip Flexor Stretch', 'hips', 40, 'Tuck the pelvis, squeeze the back glute, lean forward slightly.', 'Lengthens hip flexors shortened by sitting, which helps the glutes fire and eases low-back tightness.', true],
+    ['Frog Stretch', 'hips', 55, 'Knees wide, ankles in line with the knees, rock the hips back slowly.', 'Targets the inner thighs (adductors) and groin to widen a comfortable, stable squat stance.'],
+    ['Pigeon Stretch', 'hips', 45, 'Front shin angled, hips square, fold forward over the front leg.', 'A deep stretch for the glutes and outer hip that relieves tightness from running and long sitting.', true],
+    ['Butterfly Stretch', 'hips', 45, 'Soles together, gently press the knees down, hinge forward from the hips.', 'Opens the inner thighs and hips through the groin — gentle, and easy to ease deeper over time.'],
+    ['Cossack Squat Rock', 'hips', 30, 'Wide stance, shift over one bent leg keeping the other straight.', 'Loads the inner thigh and hip in a wide stance while building side-to-side mobility and control.', true],
+    ['Fire Hydrant Circles', 'hips', 30, 'On all fours, lift the knee out and draw big slow circles.', 'Actively mobilises the hip joint through a full circle and wakes up the glutes.', true],
     // Shoulders
-    ['Band / Towel Pass-Throughs', 'shoulders', 45, 'Wide grip, take the arms over and behind, keep the ribs down.'],
-    ['Wall Slides', 'shoulders', 45, 'Low back flat, press the arms up and down staying on the wall.'],
-    ['Doorway Pec Stretch', 'shoulders', 40, 'Forearm on the frame, step through until the chest opens.', true],
-    ['Prone Y-T-W Raises', 'shoulders', 45, 'Face down, lift the arms into a Y, then T, then W. Thumbs up.'],
-    ['Cross-Body Shoulder Stretch', 'shoulders', 30, 'Draw the arm across the body, hug it in with the other arm.', true],
-    ['Shoulder CARs', 'shoulders', 35, 'Draw the biggest slow circle you can with a straight arm.', true],
+    ['Band / Towel Pass-Throughs', 'shoulders', 45, 'Wide grip, take the arms over and behind, keep the ribs down.', 'Opens the chest and front of the shoulders and restores the overhead range needed to press safely.'],
+    ['Wall Slides', 'shoulders', 45, 'Low back flat, press the arms up and down staying on the wall.', 'Grooves healthy shoulder-blade movement and improves overhead reach while keeping the ribs down.'],
+    ['Doorway Pec Stretch', 'shoulders', 40, 'Forearm on the frame, step through until the chest opens.', 'Stretches tight chest muscles that round the shoulders forward, helping upright posture.', true],
+    ['Prone Y-T-W Raises', 'shoulders', 45, 'Face down, lift the arms into a Y, then T, then W. Thumbs up.', 'Strengthens the mid-back and rotator cuff that hold the shoulders back — mobility plus stability.'],
+    ['Cross-Body Shoulder Stretch', 'shoulders', 30, 'Draw the arm across the body, hug it in with the other arm.', 'Releases the back of the shoulder, easing tightness after pressing, throwing or carrying.', true],
+    ['Shoulder CARs', 'shoulders', 35, 'Draw the biggest slow circle you can with a straight arm.', 'Controlled articular circles take the shoulder through its full range to keep the joint healthy.', true],
     // Upper back / thoracic
-    ['Open Book', 'tspine', 40, 'Side-lying, knees stacked, rotate the top arm open and follow it.', true],
-    ['Quadruped T-Spine Rotation', 'tspine', 40, 'Hand behind the head, rotate the elbow up toward the ceiling.', true],
-    ['Thoracic Extension over an edge', 'tspine', 45, 'Upper back on a chair/roller, breathe and extend back over it.'],
-    ['Half-Kneeling Thoracic Rotation', 'tspine', 40, 'Rotate only the upper body, keep the hips facing forward.', true],
-    ['Seated Twist', 'tspine', 30, 'Sit tall, rotate and gently use the arm as leverage, grow taller.', true],
+    ['Open Book', 'tspine', 40, 'Side-lying, knees stacked, rotate the top arm open and follow it.', 'Restores upper-back rotation while keeping the low back stable — key for twisting and overhead work.', true],
+    ['Quadruped T-Spine Rotation', 'tspine', 40, 'Hand behind the head, rotate the elbow up toward the ceiling.', 'Isolates rotation in the mid-back so you stop compensating through the low back.', true],
+    ['Thoracic Extension over an edge', 'tspine', 45, 'Upper back on a chair/roller, breathe and extend back over it.', 'Reverses the rounded "desk posture" and helps you reach overhead more freely.'],
+    ['Half-Kneeling Thoracic Rotation', 'tspine', 40, 'Rotate only the upper body, keep the hips facing forward.', 'Trains upper-back rotation with the hips locked — a common limiter in golf, lifting and sport.', true],
+    ['Seated Twist', 'tspine', 30, 'Sit tall, rotate and gently use the arm as leverage, grow taller.', 'A simple all-round rotation for the mid-back and obliques that relieves stiffness from sitting.', true],
     // Ankles & calves
-    ['Knee-to-Wall Rocks', 'ankles', 40, 'Drive the knee over the toes toward the wall, heel stays down.', true],
-    ['Standing Calf Stretch', 'ankles', 40, 'Back leg straight, heel down, hips forward into the wall.', true],
-    ['Soleus (Bent-Knee) Stretch', 'ankles', 40, 'Same stance but bend the back knee to reach the lower calf.', true],
-    ['Deep Squat Ankle Rock', 'ankles', 50, 'In a deep squat, shift the weight forward over each ankle.'],
-    ['Toe Sit', 'ankles', 45, 'Kneel and sit back on tucked toes to stretch the feet and calves.'],
-    ['Ankle CARs', 'ankles', 30, 'Draw slow controlled circles with the foot, both directions.', true],
+    ['Knee-to-Wall Rocks', 'ankles', 40, 'Drive the knee over the toes toward the wall, heel stays down.', 'Builds ankle dorsiflexion — the forward shin range that lets you squat deep and run smoothly.', true],
+    ['Standing Calf Stretch', 'ankles', 40, 'Back leg straight, heel down, hips forward into the wall.', 'Lengthens the upper calf (gastrocnemius) that limits ankle motion and can strain the achilles.', true],
+    ['Soleus (Bent-Knee) Stretch', 'ankles', 40, 'Same stance but bend the back knee to reach the lower calf.', 'Targets the deeper, lower calf the straight-leg stretch misses — important for squat depth.', true],
+    ['Deep Squat Ankle Rock', 'ankles', 50, 'In a deep squat, shift the weight forward over each ankle.', 'Drives the knees over the toes under bodyweight to open the ankles right where you need it.'],
+    ['Toe Sit', 'ankles', 45, 'Kneel and sit back on tucked toes to stretch the feet and calves.', 'Stretches the feet, toes and front of the ankle — areas stiffened by shoes and sitting.'],
+    ['Ankle CARs', 'ankles', 30, 'Draw slow controlled circles with the foot, both directions.', 'Circles the ankle through its full range to maintain joint health and control.', true],
     // Hamstrings & posterior chain
-    ['Standing Forward Fold', 'hamstrings', 45, 'Soft knees, hinge and hang, let the head go heavy.'],
-    ['Single-Leg Hamstring Stretch', 'hamstrings', 45, 'Hips square, hinge over the front straight leg.', true],
-    ['Downward Dog Heel Pedal', 'hamstrings', 45, 'Push the hips up and back, pedal the heels one at a time.'],
-    ['Jefferson Curl (light)', 'hamstrings', 45, 'Roll down one vertebra at a time, then reverse. Move slowly.'],
-    ['Seated Straddle Fold', 'hamstrings', 50, 'Legs wide, hinge from the hips and walk the hands forward.'],
-    ['Supine Strap Hamstring Stretch', 'hamstrings', 40, 'On your back, strap around the foot, straighten the leg to the sky.', true],
+    ['Standing Forward Fold', 'hamstrings', 45, 'Soft knees, hinge and hang, let the head go heavy.', 'Lengthens the hamstrings and low back and lets the spine decompress under gravity.'],
+    ['Single-Leg Hamstring Stretch', 'hamstrings', 45, 'Hips square, hinge over the front straight leg.', 'Isolates one hamstring at a time with the hips square, so both sides get equal work.', true],
+    ['Downward Dog Heel Pedal', 'hamstrings', 45, 'Push the hips up and back, pedal the heels one at a time.', 'Stretches the hamstrings and calves together while opening the shoulders.'],
+    ['Jefferson Curl (light)', 'hamstrings', 45, 'Roll down one vertebra at a time, then reverse. Move slowly.', 'Loads the hamstrings and spine through a slow, controlled full range to build usable flexibility.'],
+    ['Seated Straddle Fold', 'hamstrings', 50, 'Legs wide, hinge from the hips and walk the hands forward.', 'Opens the hamstrings and inner thighs at once for a wider, deeper hinge.'],
+    ['Supine Strap Hamstring Stretch', 'hamstrings', 40, 'On your back, strap around the foot, straighten the leg to the sky.', 'A supported hamstring stretch that protects the low back — ideal if forward folds bother you.', true],
     // Wrists & elbows
-    ['Wrist Rockers — Palms Down', 'wrists', 40, 'Palms flat on the floor, rock forward and back gently.'],
-    ['Wrist Rockers — Palms Up', 'wrists', 40, 'Flip the hands palms-up, fingers toward you, rock back.'],
-    ['Wrist Circles', 'wrists', 30, 'Interlace the fingers and circle the wrists both directions.'],
-    ['Prayer Stretch', 'wrists', 35, 'Palms together, lower the hands to stretch the wrists.'],
-    ['Reverse Prayer Stretch', 'wrists', 35, 'Backs of the hands together, lift gently to stretch the flexors.'],
-    ['Forearm Extensor Stretch', 'wrists', 35, 'Straight arm, pull the hand down and in with the other hand.', true],
+    ['Wrist Rockers — Palms Down', 'wrists', 40, 'Palms flat on the floor, rock forward and back gently.', 'Prepares the wrists for weight-bearing (push-ups, front squats) by loading them gradually.'],
+    ['Wrist Rockers — Palms Up', 'wrists', 40, 'Flip the hands palms-up, fingers toward you, rock back.', 'Stretches the wrist flexors and forearms, easing tightness from gripping and typing.'],
+    ['Wrist Circles', 'wrists', 30, 'Interlace the fingers and circle the wrists both directions.', 'Lubricates the wrist joints through their full range before you load them.'],
+    ['Prayer Stretch', 'wrists', 35, 'Palms together, lower the hands to stretch the wrists.', 'Opens the underside of the wrists and forearms — helpful for pressing and desk work.'],
+    ['Reverse Prayer Stretch', 'wrists', 35, 'Backs of the hands together, lift gently to stretch the flexors.', 'Stretches the top of the forearm and wrist extensors, the muscles behind many desk aches.'],
+    ['Forearm Extensor Stretch', 'wrists', 35, 'Straight arm, pull the hand down and in with the other hand.', 'Targets the outer forearm and elbow, easing "mouse elbow" and grip tightness.', true],
     // Neck & desk relief
-    ['Chin Tucks', 'neck', 35, 'Glide the chin straight back into a double chin, hold and release.'],
-    ['Upper Trap Stretch', 'neck', 35, 'Ear toward the shoulder, gentle hand assist, breathe.', true],
-    ['Levator Scapulae Stretch', 'neck', 35, 'Look down toward the armpit, guide gently with the hand.', true],
-    ['Neck Rotations', 'neck', 30, 'Slow half-circles ear to ear — no crunching or forcing.'],
-    ['Wall Angels', 'neck', 45, 'Back to the wall, slide the arms up and down keeping contact.'],
-  ].map(([name, area, secs, cue, perSide]) => ({ name, area, secs, cue, perSide: !!perSide }));
+    ['Chin Tucks', 'neck', 35, 'Glide the chin straight back into a double chin, hold and release.', 'Strengthens the deep neck muscles and counters the forward-head posture screens create.'],
+    ['Upper Trap Stretch', 'neck', 35, 'Ear toward the shoulder, gentle hand assist, breathe.', 'Releases the muscle between neck and shoulder where stress and desk tension collect.', true],
+    ['Levator Scapulae Stretch', 'neck', 35, 'Look down toward the armpit, guide gently with the hand.', 'Stretches the muscle that causes that stiff "crick" at the base of the neck.', true],
+    ['Neck Rotations', 'neck', 30, 'Slow half-circles ear to ear — no crunching or forcing.', 'Gently restores side-to-side neck motion and eases everyday stiffness.'],
+    ['Wall Angels', 'neck', 45, 'Back to the wall, slide the arms up and down keeping contact.', 'Opens the chest and upper back and retrains posture — an antidote to hunching.'],
+  ].map(([name, area, secs, cue, explanation, perSide]) => ({ name, area, secs, cue, explanation, perSide: !!perSide }));
 
   // Focus areas offered in the builder. 'full' draws from the whole pool.
   const MOB_FOCI = [
@@ -1886,33 +1888,6 @@
   ];
   const MOB_FOCUS_LABEL = Object.fromEntries(MOB_FOCI);
   const MOB_DURATIONS = [5, 10, 15, 20]; // minutes
-
-  /* ---------- Per-area body-map glyphs (inline SVG, self-contained) ----------
-     A shared standing figure drawn faintly, with the worked region marked in
-     the accent colour. Themeable (uses currentColor + tokens) and crisp at
-     any size — no external images, so it renders inside the artifact CSP.    */
-  const MOB_FIG_BASE =
-    '<circle cx="12" cy="4" r="2.2"/>' +
-    '<path d="M12 6.2V13"/>' +
-    '<path d="M12 7.6L8 12M12 7.6l4 4.4"/>' +
-    '<path d="M12 13l-3 7M12 13l3 7"/>';
-  const MOB_AREA_MARK = {
-    spine: '<path class="mob-fig-mark-line" d="M12 6.4V13"/>',
-    neck: '<circle class="mob-fig-mark" cx="12" cy="6.2" r="1.5"/>',
-    shoulders: '<circle class="mob-fig-mark" cx="10" cy="8" r="1.3"/><circle class="mob-fig-mark" cx="14" cy="8" r="1.3"/>',
-    tspine: '<circle class="mob-fig-mark" cx="12" cy="9.4" r="1.6"/>',
-    hips: '<circle class="mob-fig-mark" cx="12" cy="12.8" r="1.7"/>',
-    hamstrings: '<circle class="mob-fig-mark" cx="10.4" cy="16.5" r="1.3"/><circle class="mob-fig-mark" cx="13.6" cy="16.5" r="1.3"/>',
-    ankles: '<circle class="mob-fig-mark" cx="9.3" cy="19.4" r="1.2"/><circle class="mob-fig-mark" cx="14.7" cy="19.4" r="1.2"/>',
-    wrists: '<circle class="mob-fig-mark" cx="8" cy="12" r="1.3"/><circle class="mob-fig-mark" cx="16" cy="12" r="1.3"/>',
-  };
-  function areaGlyph(area, cls) {
-    const isFull = !area || area === 'full';
-    const base = `<g class="mob-fig-base${isFull ? ' is-full' : ''}">${MOB_FIG_BASE}</g>`;
-    const mark = isFull ? '' : (MOB_AREA_MARK[area] || '');
-    return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" ` +
-      `stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${base}${mark}</svg>`;
-  }
 
   const mobilityDone = new Set(); // in-memory check-off for the current session (warm-ups)
 
@@ -1954,7 +1929,7 @@
       const useOther = !isFull && otherPool.length && i % 3 === 2;
       const m = draw(useOther ? 'o' : 'f');
       if (!m) break;
-      moves.push([m.name, m.secs, m.cue, m.perSide, m.area]);
+      moves.push([m.name, m.secs, m.cue, m.perSide, m.explanation]);
       total += mobMoveSecs(m);
       lastName = m.name;
       i++;
@@ -2062,12 +2037,12 @@
   /* ---------- Guided mobility: streak + routine cards + player ---------- */
   function routineSteps(r) {
     const steps = [];
-    r.moves.forEach(([name, secs, cue, perSide, area]) => {
+    r.moves.forEach(([name, secs, cue, perSide, explanation]) => {
       if (perSide) {
-        steps.push({ name, secs, cue, area, side: 'Left side' });
-        steps.push({ name, secs, cue, area, side: 'Right side' });
+        steps.push({ name, secs, cue, explanation, side: 'Left side' });
+        steps.push({ name, secs, cue, explanation, side: 'Right side' });
       } else {
-        steps.push({ name, secs, cue, area, side: null });
+        steps.push({ name, secs, cue, explanation, side: null });
       }
     });
     return steps;
@@ -2140,8 +2115,7 @@
     card.appendChild(el('div', 'sub-label', 'Focus area'));
     const focusRow = el('div', 'mob-chip-row');
     MOB_FOCI.forEach(([id, label]) => {
-      const chip = el('button', 'mob-chip mob-chip-focus' + (id === mobFocus ? ' is-sel' : ''));
-      chip.innerHTML = areaGlyph(id, 'mob-chip-ic') + `<span>${label}</span>`;
+      const chip = el('button', 'mob-chip' + (id === mobFocus ? ' is-sel' : ''), label);
       chip.addEventListener('click', () => { mobFocus = id; persistMobPrefs(); renderMobilityBuilder(); });
       focusRow.appendChild(chip);
     });
@@ -2222,12 +2196,14 @@
     const st = mob.steps[mob.idx];
     $('#mob-routine-name').textContent = mob.routine.name;
     $('#mob-progress-text').textContent = `Move ${mob.idx + 1} of ${mob.steps.length}`;
-    $('#mob-illus').innerHTML = areaGlyph(st.area, 'mob-illus-svg');
     $('#mob-move').textContent = st.name;
     const sideEl = $('#mob-side');
     if (st.side) { sideEl.textContent = st.side; sideEl.classList.remove('hidden'); }
     else sideEl.classList.add('hidden');
     $('#mob-cue').textContent = st.cue;
+    const explainEl = $('#mob-explain');
+    explainEl.textContent = st.explanation || '';
+    explainEl.classList.toggle('hidden', !st.explanation);
     const info = getExerciseInfo(st.name);
     const watch = $('#mob-watch');
     if (info && info.v) {

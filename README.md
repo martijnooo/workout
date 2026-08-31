@@ -31,9 +31,8 @@ data lives in your browser (localStorage) — no accounts, no server.
   - **Hands-free guided player** with a per-move countdown ring that
     auto-advances, beeps + vibrates between moves, and runs left/right sides
     automatically. Pause, skip, go back, restart a move, or add 15s.
-  - **Body-map glyphs** — each focus area and each move shows an inline-SVG
-    figure with the worked region highlighted (self-contained, so it renders
-    even inside a sandboxed Artifact where remote images are blocked).
+  - **Every move is explained** — the player shows a quick how-to cue plus a
+    plain-language note on what the stretch targets and why it helps.
   - **Streak tracking** — completed sessions build a day streak and are counted
     per week and in total, and sync to Google Drive alongside your workouts.
 - **Works offline** and is installable as a PWA (Add to Home Screen).
