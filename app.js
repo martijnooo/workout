@@ -2209,15 +2209,8 @@
       if (!mob || mob.paused) return;
       mob.remaining -= 1;
       if (mob.remaining <= 0) { stepComplete(); return; }
-      // Audio countdown: gentle ticks through the final 10s of an exercise
-      // (emphasised for the last 3), and a 3-2-1 "get ready" during a break.
-      if (settings.sound && mob.remaining >= 1) {
-        if (mob.steps[mob.idx].rest) {
-          if (mob.remaining <= 3) tickBeep(true);
-        } else if (mob.remaining <= 10) {
-          tickBeep(mob.remaining <= 3);
-        }
-      }
+      // A single audio cue when 10 seconds remain on an exercise (not breaks).
+      if (settings.sound && !mob.steps[mob.idx].rest && mob.remaining === 10) tickBeep(true);
       updateMobUI();
     }, 1000);
   }

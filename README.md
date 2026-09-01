@@ -31,9 +31,8 @@ data lives in your browser (localStorage) — no accounts, no server.
   - **Hands-free guided player** with a per-move countdown ring that
     auto-advances, beeps + vibrates between moves, and runs left/right sides
     automatically. Pause, skip, go back, restart a move, or add 15s.
-  - **Audio countdown** — soft ticks through the final 10 seconds of each
-    move (with a 3-2-1 "get ready" during breaks), respecting the sound
-    toggle in Rest-timer settings.
+  - **Audio cue at 10 seconds left** — a single soft blip when a move has
+    10 seconds remaining, respecting the sound toggle in Rest-timer settings.
   - **10s break between exercises**, shown as its own green "Rest" screen with
     the next move named. The break time is included in the length you pick.
   - **Every move is explained** — the player shows a quick how-to cue plus a
