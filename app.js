@@ -1076,6 +1076,26 @@
     } catch (e) { /* audio unavailable */ }
   }
 
+  // A short soft blip used for the mobility countdown (last 10 seconds of a
+  // move). `emph` raises the pitch/volume for the final few ticks.
+  function tickBeep(emph) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = emph ? 1050 : 720;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(emph ? 0.3 : 0.16, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.14);
+    } catch (e) { /* audio unavailable */ }
+  }
+
   /* ---------- Rest settings modal ---------- */
   const restSettingsModal = $('#rest-settings-modal');
   function openRestSettings() {
@@ -1888,6 +1908,7 @@
   ];
   const MOB_FOCUS_LABEL = Object.fromEntries(MOB_FOCI);
   const MOB_DURATIONS = [5, 10, 15, 20]; // minutes
+  const MOB_REST = 10; // seconds of rest inserted between exercises
 
   const mobilityDone = new Set(); // in-memory check-off for the current session (warm-ups)
 
@@ -1924,8 +1945,10 @@
     };
     const moves = [];
     let total = 0, i = 0, lastName = '';
-    // Always leave room for at least one move; stop once we're close to target.
+    // Fill until close to target. Each move after the first is preceded by a
+    // 10s break, so that rest time counts toward the requested duration.
     while (total < target - 12 && moves.length < 40) {
+      if (moves.length > 0) total += MOB_REST; // break before this exercise
       const useOther = !isFull && otherPool.length && i % 3 === 2;
       const m = draw(useOther ? 'o' : 'f');
       if (!m) break;
@@ -2035,9 +2058,13 @@
   }
 
   /* ---------- Guided mobility: streak + routine cards + player ---------- */
+  // Expand a routine into player steps, inserting a 10s rest before every
+  // exercise after the first. Left/right sides of one move are NOT separated
+  // by a rest — the break sits between distinct exercises.
   function routineSteps(r) {
     const steps = [];
-    r.moves.forEach(([name, secs, cue, perSide, explanation]) => {
+    r.moves.forEach(([name, secs, cue, perSide, explanation], mi) => {
+      if (mi > 0) steps.push({ rest: true, name: 'Rest', secs: MOB_REST });
       if (perSide) {
         steps.push({ name, secs, cue, explanation, side: 'Left side' });
         steps.push({ name, secs, cue, explanation, side: 'Right side' });
@@ -2045,10 +2072,21 @@
         steps.push({ name, secs, cue, explanation, side: null });
       }
     });
+    // Number the work steps (rests are not counted) and tell each rest what
+    // exercise comes next, for the "Next up" label.
+    const work = steps.filter((s) => !s.rest);
+    work.forEach((s, i) => { s.moveNum = i + 1; s.workTotal = work.length; });
+    steps.forEach((s, i) => {
+      if (!s.rest) return;
+      const nx = steps.slice(i + 1).find((x) => !x.rest);
+      s.next = nx ? nx.name : '';
+      s.nextSide = nx ? nx.side : null;
+    });
     return steps;
   }
   function routineSeconds(r) {
-    return r.moves.reduce((s, [, secs, , perSide]) => s + (perSide ? secs * 2 : secs), 0);
+    const work = r.moves.reduce((s, [, secs, , perSide]) => s + (perSide ? secs * 2 : secs), 0);
+    return work + Math.max(0, r.moves.length - 1) * MOB_REST;
   }
   function dayKey(ts) { return new Date(ts).toDateString(); }
   function mobilityStreak() {
@@ -2128,7 +2166,7 @@
       ? 'A balanced full-body flow.'
       : `Weighted toward ${MOB_FOCUS_LABEL[mobFocus].toLowerCase()}, with complementary moves mixed in.`;
     card.appendChild(el('div', 'mob-builder-note',
-      `≈ ${preview.moves.length} moves · ${fmtClock(secs)}. Fresh mix every time. ${note}`));
+      `≈ ${preview.moves.length} moves · ${fmtClock(secs)} incl. 10s breaks. Fresh mix every time. ${note}`));
 
     const start = el('button', 'btn btn-primary btn-block mob-start');
     start.innerHTML = icon('play') + '<span>Start session</span>';
@@ -2171,6 +2209,15 @@
       if (!mob || mob.paused) return;
       mob.remaining -= 1;
       if (mob.remaining <= 0) { stepComplete(); return; }
+      // Audio countdown: gentle ticks through the final 10s of an exercise
+      // (emphasised for the last 3), and a 3-2-1 "get ready" during a break.
+      if (settings.sound && mob.remaining >= 1) {
+        if (mob.steps[mob.idx].rest) {
+          if (mob.remaining <= 3) tickBeep(true);
+        } else if (mob.remaining <= 10) {
+          tickBeep(mob.remaining <= 3);
+        }
+      }
       updateMobUI();
     }, 1000);
   }
@@ -2194,18 +2241,33 @@
 
   function renderMobStep() {
     const st = mob.steps[mob.idx];
+    const isRest = !!st.rest;
+    mobPlayerEl.classList.toggle('is-rest', isRest);
     $('#mob-routine-name').textContent = mob.routine.name;
-    $('#mob-progress-text').textContent = `Move ${mob.idx + 1} of ${mob.steps.length}`;
-    $('#mob-move').textContent = st.name;
     const sideEl = $('#mob-side');
+    const explainEl = $('#mob-explain');
+    const watch = $('#mob-watch');
+
+    if (isRest) {
+      $('#mob-progress-text').textContent = 'Break';
+      $('#mob-move').textContent = 'Rest';
+      sideEl.classList.add('hidden');
+      const nextSide = st.nextSide ? ' · ' + st.nextSide.replace(' side', '') : '';
+      $('#mob-cue').textContent = st.next ? `Next up: ${st.next}${nextSide}` : 'Almost done — last stretch coming up.';
+      explainEl.classList.add('hidden');
+      watch.classList.add('hidden');
+      updateMobUI();
+      return;
+    }
+
+    $('#mob-progress-text').textContent = `Move ${st.moveNum} of ${st.workTotal}`;
+    $('#mob-move').textContent = st.name;
     if (st.side) { sideEl.textContent = st.side; sideEl.classList.remove('hidden'); }
     else sideEl.classList.add('hidden');
     $('#mob-cue').textContent = st.cue;
-    const explainEl = $('#mob-explain');
     explainEl.textContent = st.explanation || '';
     explainEl.classList.toggle('hidden', !st.explanation);
     const info = getExerciseInfo(st.name);
-    const watch = $('#mob-watch');
     if (info && info.v) {
       watch.href = info.v;
       watch.innerHTML = icon('play') + '<span>Watch</span>';

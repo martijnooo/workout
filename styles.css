@@ -681,6 +681,10 @@ body.mob-open { overflow: hidden; }
   font-family: var(--mono); font-size: 46px; font-weight: 700; letter-spacing: -.02em;
 }
 .mob-cue { font-size: 14px; color: var(--text-2); line-height: 1.55; max-width: 34ch; }
+/* Break / rest step — ring, timer and title shift to the success colour. */
+.mob-player.is-rest .mob-ring-fill { stroke: var(--success); }
+.mob-player.is-rest .mob-time,
+.mob-player.is-rest .mob-move { color: var(--success); }
 .mob-explain {
   font-size: 12.5px; color: var(--muted); line-height: 1.55; max-width: 36ch;
   padding-top: 10px; border-top: 1px solid var(--border); margin-top: 2px;
