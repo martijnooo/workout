@@ -1944,18 +1944,26 @@
       return q.splice(idx, 1)[0];
     };
     const moves = [];
-    let total = 0, i = 0, lastName = '';
-    // Fill until close to target. Each move after the first is preceded by a
-    // 10s break, so that rest time counts toward the requested duration.
-    while (total < target - 12 && moves.length < 40) {
-      if (moves.length > 0) total += MOB_REST; // break before this exercise
+    let total = 0, i = 0, lastName = '', workCount = 0;
+    // Fill until close to target. A 10s break precedes every work step except
+    // the very first (so per-side moves get a break between sides too), and
+    // that rest time counts toward the requested duration.
+    while (moves.length < 40) {
       const useOther = !isFull && otherPool.length && i % 3 === 2;
       const m = draw(useOther ? 'o' : 'f');
       if (!m) break;
+      const k = m.perSide ? 2 : 1;
+      const rests = workCount === 0 ? k - 1 : k; // no break before the 1st step
+      const cost = rests * MOB_REST + mobMoveSecs(m);
+      // Once we're near the target, skip a move that would overshoot badly so
+      // per-side moves (two breaks + two holds) don't blow past the length.
+      if (moves.length > 0 && total >= target - 60 && total + cost > target + 20) break;
+      total += cost;
       moves.push([m.name, m.secs, m.cue, m.perSide, m.explanation]);
-      total += mobMoveSecs(m);
+      workCount += k;
       lastName = m.name;
       i++;
+      if (total >= target - 12) break;
     }
     return {
       id: 'custom', focus: isFull ? 'full' : focus,
@@ -2058,35 +2066,39 @@
   }
 
   /* ---------- Guided mobility: streak + routine cards + player ---------- */
-  // Expand a routine into player steps, inserting a 10s rest before every
-  // exercise after the first. Left/right sides of one move are NOT separated
-  // by a rest — the break sits between distinct exercises.
+  // Expand a routine into player steps, inserting a 10s rest before EVERY
+  // work step except the very first — so left/right sides are separated by a
+  // break too. Each rest previews the exercise that follows it.
   function routineSteps(r) {
-    const steps = [];
-    r.moves.forEach(([name, secs, cue, perSide, explanation], mi) => {
-      if (mi > 0) steps.push({ rest: true, name: 'Rest', secs: MOB_REST });
+    const work = [];
+    r.moves.forEach(([name, secs, cue, perSide, explanation]) => {
       if (perSide) {
-        steps.push({ name, secs, cue, explanation, side: 'Left side' });
-        steps.push({ name, secs, cue, explanation, side: 'Right side' });
+        work.push({ name, secs, cue, explanation, side: 'Left side' });
+        work.push({ name, secs, cue, explanation, side: 'Right side' });
       } else {
-        steps.push({ name, secs, cue, explanation, side: null });
+        work.push({ name, secs, cue, explanation, side: null });
       }
     });
-    // Number the work steps (rests are not counted) and tell each rest what
-    // exercise comes next, for the "Next up" label.
-    const work = steps.filter((s) => !s.rest);
     work.forEach((s, i) => { s.moveNum = i + 1; s.workTotal = work.length; });
-    steps.forEach((s, i) => {
-      if (!s.rest) return;
-      const nx = steps.slice(i + 1).find((x) => !x.rest);
-      s.next = nx ? nx.name : '';
-      s.nextSide = nx ? nx.side : null;
+    const steps = [];
+    work.forEach((w, i) => {
+      if (i > 0) {
+        steps.push({
+          rest: true, name: 'Rest', secs: MOB_REST,
+          next: w.name, nextSide: w.side, nextCue: w.cue, nextExplanation: w.explanation,
+        });
+      }
+      steps.push(w);
     });
     return steps;
   }
   function routineSeconds(r) {
-    const work = r.moves.reduce((s, [, secs, , perSide]) => s + (perSide ? secs * 2 : secs), 0);
-    return work + Math.max(0, r.moves.length - 1) * MOB_REST;
+    let work = 0, steps = 0;
+    r.moves.forEach(([, secs, , perSide]) => {
+      work += perSide ? secs * 2 : secs;
+      steps += perSide ? 2 : 1;
+    });
+    return work + Math.max(0, steps - 1) * MOB_REST;
   }
   function dayKey(ts) { return new Date(ts).toDateString(); }
   function mobilityStreak() {
@@ -2242,12 +2254,14 @@
     const watch = $('#mob-watch');
 
     if (isRest) {
-      $('#mob-progress-text').textContent = 'Break';
-      $('#mob-move').textContent = 'Rest';
-      sideEl.classList.add('hidden');
+      $('#mob-progress-text').textContent = 'Break — get ready';
       const nextSide = st.nextSide ? ' · ' + st.nextSide.replace(' side', '') : '';
-      $('#mob-cue').textContent = st.next ? `Next up: ${st.next}${nextSide}` : 'Almost done — last stretch coming up.';
-      explainEl.classList.add('hidden');
+      sideEl.textContent = 'Next up' + nextSide;
+      sideEl.classList.remove('hidden');
+      $('#mob-move').textContent = st.next || 'Last stretch';
+      $('#mob-cue').textContent = st.nextCue || '';
+      explainEl.textContent = st.nextExplanation || '';
+      explainEl.classList.toggle('hidden', !st.nextExplanation);
       watch.classList.add('hidden');
       updateMobUI();
       return;
