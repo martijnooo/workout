@@ -1908,12 +1908,15 @@
   ];
   const MOB_FOCUS_LABEL = Object.fromEntries(MOB_FOCI);
   const MOB_DURATIONS = [5, 10, 15, 20]; // minutes
-  const MOB_REST = 10; // seconds of rest inserted between exercises
+  const MOB_REST = 10; // seconds of rest before each exercise (and to start)
+  const MOB_WORK = 60; // every stretch is held for 1 minute
 
   const mobilityDone = new Set(); // in-memory check-off for the current session (warm-ups)
 
-  /* ---------- Session builder ---------- */
-  function mobMoveSecs(m) { return m.perSide ? m.secs * 2 : m.secs; }
+  /* ---------- Session builder ----------
+     Every stretch is held for MOB_WORK (1 min); per-side moves are that long
+     on each side. The pool's own `secs` are no longer used for timing.       */
+  function mobMoveSecs(m) { return m.perSide ? MOB_WORK * 2 : MOB_WORK; }
   function shuffled(arr) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -1944,26 +1947,28 @@
       return q.splice(idx, 1)[0];
     };
     const moves = [];
-    let total = 0, i = 0, lastName = '', workCount = 0;
-    // Fill until close to target. A 10s break precedes every work step except
-    // the very first (so per-side moves get a break between sides too), and
-    // that rest time counts toward the requested duration.
+    let total = 0, i = 0, lastName = '', skips = 0;
+    // Fill until close to target. A 10s break precedes every work step — the
+    // session opens with one too — and per-side moves get a break between
+    // sides. All that rest time counts toward the requested duration. Each
+    // work step is a 70s block (break + 1-min hold), so we stop within ~half a
+    // block and skip a move that would overshoot rather than blow past.
     while (moves.length < 40) {
       const useOther = !isFull && otherPool.length && i % 3 === 2;
       const m = draw(useOther ? 'o' : 'f');
       if (!m) break;
       const k = m.perSide ? 2 : 1;
-      const rests = workCount === 0 ? k - 1 : k; // no break before the 1st step
-      const cost = rests * MOB_REST + mobMoveSecs(m);
-      // Once we're near the target, skip a move that would overshoot badly so
-      // per-side moves (two breaks + two holds) don't blow past the length.
-      if (moves.length > 0 && total >= target - 60 && total + cost > target + 20) break;
+      const cost = k * (MOB_REST + MOB_WORK); // a break + 1-min hold per work step
+      if (moves.length > 0 && total + cost > target + 40) {
+        if (++skips > 5) break; // give up finding a smaller move
+        continue;               // try a different (likely shorter) move
+      }
+      skips = 0;
       total += cost;
       moves.push([m.name, m.secs, m.cue, m.perSide, m.explanation]);
-      workCount += k;
       lastName = m.name;
       i++;
-      if (total >= target - 12) break;
+      if (total >= target - 40) break;
     }
     return {
       id: 'custom', focus: isFull ? 'full' : focus,
@@ -2066,39 +2071,33 @@
   }
 
   /* ---------- Guided mobility: streak + routine cards + player ---------- */
-  // Expand a routine into player steps, inserting a 10s rest before EVERY
-  // work step except the very first — so left/right sides are separated by a
-  // break too. Each rest previews the exercise that follows it.
+  // Expand a routine into player steps. A 10s rest precedes EVERY work step —
+  // including the first, so the session opens with a "get ready" break — and
+  // per-side moves get a break between sides. Each rest previews what follows.
   function routineSteps(r) {
     const work = [];
     r.moves.forEach(([name, secs, cue, perSide, explanation]) => {
       if (perSide) {
-        work.push({ name, secs, cue, explanation, side: 'Left side' });
-        work.push({ name, secs, cue, explanation, side: 'Right side' });
+        work.push({ name, secs: MOB_WORK, cue, explanation, side: 'Left side' });
+        work.push({ name, secs: MOB_WORK, cue, explanation, side: 'Right side' });
       } else {
-        work.push({ name, secs, cue, explanation, side: null });
+        work.push({ name, secs: MOB_WORK, cue, explanation, side: null });
       }
     });
     work.forEach((s, i) => { s.moveNum = i + 1; s.workTotal = work.length; });
     const steps = [];
-    work.forEach((w, i) => {
-      if (i > 0) {
-        steps.push({
-          rest: true, name: 'Rest', secs: MOB_REST,
-          next: w.name, nextSide: w.side, nextCue: w.cue, nextExplanation: w.explanation,
-        });
-      }
+    work.forEach((w) => {
+      steps.push({
+        rest: true, name: 'Rest', secs: MOB_REST,
+        next: w.name, nextSide: w.side, nextCue: w.cue, nextExplanation: w.explanation,
+      });
       steps.push(w);
     });
     return steps;
   }
   function routineSeconds(r) {
-    let work = 0, steps = 0;
-    r.moves.forEach(([, secs, , perSide]) => {
-      work += perSide ? secs * 2 : secs;
-      steps += perSide ? 2 : 1;
-    });
-    return work + Math.max(0, steps - 1) * MOB_REST;
+    const steps = r.moves.reduce((n, [, , , perSide]) => n + (perSide ? 2 : 1), 0);
+    return steps * (MOB_WORK + MOB_REST); // one break + one 1-min hold per step
   }
   function dayKey(ts) { return new Date(ts).toDateString(); }
   function mobilityStreak() {

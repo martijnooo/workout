@@ -33,8 +33,9 @@ data lives in your browser (localStorage) — no accounts, no server.
     automatically. Pause, skip, go back, restart a move, or add 15s.
   - **Audio cue at 10 seconds left** — a single soft blip when a move has
     10 seconds remaining, respecting the sound toggle in Rest-timer settings.
-  - **10s break before every stretch** (including between the left and right
-    sides of a move), shown as a green screen that previews the next exercise
+  - **1-minute holds** with a **10s break before every stretch** — the session
+    opens with a break too, and per-side moves get one between the left and
+    right sides. Each break is a green screen that previews the next exercise
     with its how-to and explanation. Break time is included in the length you
     pick.
   - **Every move is explained** — the player shows a quick how-to cue plus a
